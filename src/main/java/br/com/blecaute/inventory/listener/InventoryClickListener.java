@@ -1,6 +1,6 @@
 package br.com.blecaute.inventory.listener;
 
-import br.com.blecaute.inventory.CustomInventoryHolder;
+import br.com.blecaute.inventory.InventoryBuilder;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,8 +15,8 @@ public class InventoryClickListener implements Listener {
         if (event.getInventory() == null) return;
 
         InventoryHolder inventoryHolder = event.getInventory().getHolder();
-        if (inventoryHolder instanceof CustomInventoryHolder) {
-            CustomInventoryHolder holder = (CustomInventoryHolder) inventoryHolder;
+        if (inventoryHolder instanceof InventoryBuilder.CustomHolder) {
+            InventoryBuilder.CustomHolder holder = (InventoryBuilder.CustomHolder) inventoryHolder;
             ItemStack item = event.getCurrentItem();
 
             if (item != null && item.getType() != Material.AIR) {

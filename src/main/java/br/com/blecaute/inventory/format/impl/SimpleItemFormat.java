@@ -1,10 +1,9 @@
 package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
-import br.com.blecaute.inventory.InventoryClick;
+import br.com.blecaute.inventory.event.InventoryClick;
 import br.com.blecaute.inventory.format.InventoryFormat;
-import br.com.blecaute.inventory.property.InventoryProperty;
-import br.com.blecaute.inventory.type.InventoryItemType;
+import br.com.blecaute.inventory.type.InventoryItem;
 import lombok.Data;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -14,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
 @Data
-public class SimpleItemFormat<T extends InventoryItemType> implements InventoryFormat<T> {
+public class SimpleItemFormat<T extends InventoryItem> implements InventoryFormat<T> {
 
     private final int slot;
     private final ItemStack itemStack;
@@ -31,7 +30,7 @@ public class SimpleItemFormat<T extends InventoryItemType> implements InventoryF
     }
 
     @Override
-    public void format(@NotNull Inventory inventory, @NotNull InventoryProperty property) {
+    public void format(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) {
         inventory.setItem(slot, itemStack);
     }
 

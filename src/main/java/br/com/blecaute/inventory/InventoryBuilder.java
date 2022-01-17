@@ -1,242 +1,231 @@
 package br.com.blecaute.inventory;
 
+import br.com.blecaute.inventory.enums.ButtonType;
+import br.com.blecaute.inventory.event.InventoryClick;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
+import br.com.blecaute.inventory.format.PaginatedFormat;
+import br.com.blecaute.inventory.format.impl.PaginatedItemFormat;
+import br.com.blecaute.inventory.format.impl.PaginatedObjectFormat;
 import br.com.blecaute.inventory.format.impl.SimpleObjectFormat;
 import br.com.blecaute.inventory.format.impl.SimpleItemFormat;
-import br.com.blecaute.inventory.type.InventoryItemType;
-import lombok.AllArgsConstructor;
+import br.com.blecaute.inventory.property.InventoryProperty;
+import br.com.blecaute.inventory.type.InventoryItem;
+import lombok.AccessLevel;
+import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * class to facilitate the construction of inventories.
- * @param <T> the type of builder
+ * A simple class for building of @{@link Inventory}.
+ * @param <T> The type of @{@link InventoryBuilder}
  */
-public class InventoryBuilder<T extends InventoryItemType> implements Cloneable {
+@Getter
+public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
-    @Getter private final String inventoryName;
-    @Getter private Inventory inventory;
+    @Getter(AccessLevel.NONE) private final String inventoryName;
+    @Getter(AccessLevel.NONE) private Inventory inventory;
 
-    @Getter private int page = 1;
-    @Getter private int size = 0;
+    @Getter(AccessLevel.NONE) private Function<Integer, Boolean> skipFunction;
 
-    private int exit;
-    private int start = 0;
-    private int value = 0;
+    private int startSlot = 0;
+    private int exitSlot;
 
-    private Function<Integer, Boolean> scape;
+    private int pageSize = 0;
+    private int currentPage = 1;
 
-    private Map<Object, Object> DATA = new HashMap<>();
-    private Map<ButtonType, Pair<Integer, ItemStack>> PAGES = new HashMap<>();
-    private List<InventoryFormat<T>> FORMATS = new ArrayList<>();
+    private InventoryProperty properties = new InventoryProperty();
+    private Map<ButtonType, Pair<Integer, ItemStack>> buttons = new EnumMap<>(ButtonType.class);
+    private List<InventoryFormat<T>> formats = new LinkedList<>();
 
     /**
-     * Default constructor
+     * Create instance of @{@link InventoryBuilder}
      *
-     * @param name  the name of inventory
-     * @param lines lines of inventory
+     * @param name  The name of @{@link Inventory}
+     * @param lines The lines of @{@link Inventory}
      */
     public InventoryBuilder(String name, int lines) {
+        if (!InventoryHelper.isEnabled()) {
+            throw new InventoryBuilderException("The InventoryHelper must be enabled");
+        }
+
         int size = Math.min(6, Math.max(1, lines)) * 9;
         this.inventoryName = name.replace("&", "§");
-        this.exit = size - 1;
+        this.exitSlot = size - 1;
         this.inventory = createInventory(size);
     }
 
     /**
-     * Build inventory
+     * Set number of objects on each page.
      *
-     * @return the @{@link Inventory}
+     * @param size  The size
+     * @return This @{@link InventoryBuilder}
      */
-    public Inventory build() {
-        formatInventory();
-        return this.inventory;
-    }
-
-    /**
-     * Set first page of inventory and size of objects in the pages
-     *
-     * @param page  the page
-     * @param size  the size
-     * @return this
-     */
-    public InventoryBuilder<T> withPage(int page, int size)  {
-        this.page = page;
-        this.size = size;
-
+    public InventoryBuilder<T> withPageSize(int size)  {
+        this.pageSize = size;
         return this;
     }
 
     /**
      * Set slot to start the place of items.
      *
-     * @param start the slot
-     * @return this
+     * @param start The slot
+     * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withSlotStart(int start) {
-        this.start = start;
+    public InventoryBuilder<T> withStart(int start) {
+        this.startSlot = start;
         return this;
     }
 
     /**
-     * Skip slots and add to the current slot
+     * Set slot to stop place of items.
      *
-     * @param value the value to be added
-     * @param scape the slots to skip
-     * @return this
+     * @param exit  The slot.
+     * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withSlotSkip(int value, int... scape) {
-        this.value = value;
-        this.scape = integer -> Arrays.stream(scape).anyMatch(slot -> slot == integer);
-
+    public InventoryBuilder<T> withExit(int exit) {
+        this.exitSlot = exit;
         return this;
     }
 
     /**
-     * skip slots and add to the current slot
+     * Skip placing items in these slots.
      *
-     * @param value the value to be added
-     * @param scape the function to skip
-     * @return the builder
+     * @param skip The slots
+     * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withSlotSkip(int value, Function<Integer, Boolean> scape) {
-        this.value = value;
-        this.scape = scape;
-
+    public InventoryBuilder<T> withSkip(int... skip) {
+        this.skipFunction = integer -> Arrays.stream(skip).anyMatch(slot -> slot == integer);
         return this;
     }
 
     /**
-     * slot to stop setting items
+     * Skip placing items in these slots.
      *
-     * @param exit the exit
-     * @return the builder
+     * @param skip The @{@link Function} to check slot.
+     * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withSlotExit(int exit) {
-        this.exit = exit;
+    public InventoryBuilder<T> withSkip(Function<Integer, Boolean> skip) {
+        this.skipFunction = skip;
         return this;
     }
 
     /**
-     * set the item of inventory
+     * Set item in @{@link Inventory}
      *
-     * @param slot the slot
-     * @param itemStack the ItemStack
-     * @param consumer the consumer
-     * @return the builder
+     * @param slot      The slot
+     * @param itemStack The @{@link ItemStack}
+     * @param consumer  The @{@link InventoryClick} callback.
+     *
+     * @return This @{@link InventoryBuilder}
      */
     public InventoryBuilder<T> withItem(int slot, ItemStack itemStack, Consumer<InventoryClick<T>> consumer) {
 
         if (slot > 0) {
-            FORMATS.add(new SimpleItemFormat<>(slot, itemStack, consumer));
+            formats.add(new SimpleItemFormat<>(slot, itemStack, consumer));
         }
 
         return this;
     }
 
     /**
-     * set the item of inventory with parameter T
+     * Set items in @{@link Inventory} with pagination
      *
-     * @param slot the slot
-     * @param value the parameter
-     * @param consumer the consumer
-     * @return the builder
+     * @param items     The list of @{@link ItemStack}
+     * @param consumer  The @{@link InventoryClick} callback.
+     *
+     * @return This @{@link InventoryBuilder}
+     */
+    public InventoryBuilder<T> withItems(List<ItemStack> items, Consumer<InventoryClick<T>> consumer) {
+        formats.add(new PaginatedItemFormat<>(items, consumer));
+        return this;
+    }
+
+    /**
+     * Set item in @{@link Inventory} with @{@link InventoryItem}
+     *
+     * @param slot      The slot
+     * @param value     The @{@link InventoryItem}
+     * @param consumer  The @{@link InventoryClick} callback.
+     *
+     * @return This @{@link InventoryBuilder}
      */
     public InventoryBuilder<T> withObject(int slot, T value, Consumer<InventoryClick<T>> consumer) {
 
         if (slot > 0) {
-            FORMATS.add(new SimpleObjectFormat<>(slot, value, consumer));
+            formats.add(new SimpleObjectFormat<>(slot, value, consumer));
         }
 
         return this;
     }
 
-
     /**
-     * set the item to skip the inventory pages
+     * Set items in @{@link Inventory} with @{@link InventoryItem} and pagination
      *
-     * @param slot the slot
-     * @param itemStack the item
-     * @return the builder
+     * @param objects   The list of @{@link InventoryItem}
+     * @param consumer  The @{@link InventoryClick} callback.
+     *
+     * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withNextPage(int slot, ItemStack itemStack) {
-        PAGES.put(ButtonType.NEXT, Pair.of(slot, itemStack));
+    public InventoryBuilder<T> withObjects(List<T> objects, Consumer<InventoryClick<T>> consumer) {
+        formats.add(new PaginatedObjectFormat<>(objects, consumer));
         return this;
     }
 
     /**
-     * set the item to return the inventory pages
+     * Set @{@link ButtonType}
      *
-     * @param slot the slot of item
-     * @param itemStack the item
-     * @return the builder
+     * @param type      The @{@link ButtonType}
+     * @param slot      The slot
+     * @param itemStack The @{@link ItemStack}
+     *
+     * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withBackPage(int slot, ItemStack itemStack) {
-        PAGES.put(ButtonType.BACK, Pair.of(slot, itemStack));
+    public InventoryBuilder<T> withButton(ButtonType type, int slot, ItemStack itemStack) {
+        buttons.put(type, Pair.of(slot, itemStack));
         return this;
     }
 
     /**
-     * open inventory to player
+     * Add property to @{@link InventoryBuilder}
      *
-     * @param player the player
-     * @return the builder
+     * @param key       The key.
+     * @param object    The object.
+     *
+     * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> open(Player player) {
-        player.openInventory(this.inventory);
-        formatInventory();
-        player.updateInventory();
-
+    public InventoryBuilder<T> withProperty(String key, Object object) {
+        this.properties.set(key, object);
         return this;
     }
 
     /**
-     * Add data to inventory
+     * Set properties of @{@link InventoryBuilder}
      *
-     * @param key The key of data
-     * @param value The value of data
-     * @return The @{@link InventoryBuilder}
+     * @param properties The properties.
+     *
+     * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withData(Object key, Object value) {
-        DATA.put(key, value);
+    public InventoryBuilder<T> withProperties(InventoryProperty properties) {
+        this.properties = properties;
         return this;
     }
 
     /**
-     * Get data of @{@link InventoryBuilder}
-     * @param key The key
-     * @return The value
-     */
-    @Nullable
-    public Object getData(Object key) {
-        return DATA.get(key);
-    }
-
-    /**
-     * Remove data from builder
-     * @param key The key
-     * @return The @{@link InventoryBuilder}
-     */
-    public InventoryBuilder<T> removeData(Object key) {
-        DATA.remove(key);
-        return this;
-    }
-
-    /**
-     * Clone this builder.
-     *
-     * @return the clone of this builder.
+     * Clone @{@link InventoryBuilder}
+     * @return The clone of this @{@link InventoryBuilder}
      */
     @Override @SuppressWarnings("unchecked")
     public InventoryBuilder<T> clone() {
@@ -244,159 +233,130 @@ public class InventoryBuilder<T extends InventoryItemType> implements Cloneable 
             InventoryBuilder<T> clone = (InventoryBuilder<T>) super.clone();
 
             clone.inventory = clone.createInventory(this.inventory.getSize());
-
-            clone.DATA = new HashMap<>(this.DATA);
-            clone.PAGES = new HashMap<>(this.PAGES);
-            clone.FORMATS = new ArrayList<>(this.FORMATS);
+            clone.properties = this.properties.clone();
+            clone.buttons = new EnumMap<>(this.buttons);
+            clone.formats = new LinkedList<>(this.formats);
 
             return clone;
 
-        } catch (CloneNotSupportedException exception) {
+        } catch (Exception exception) {
             throw new InventoryBuilderException(exception);
         }
 
     }
 
     /**
-     * Format the inventory and update items
-     * @return the builder
+     * Format @{@link Inventory}
+     * @return This @{@link InventoryBuilder}
      */
-    @SuppressWarnings("ALL")
-    public InventoryBuilder<T> formatInventory() {
+    public InventoryBuilder<T> format() {
         inventory.clear();
 
-        for (InventoryFormat<T> format : FORMATS) {
+        for (InventoryFormat<T> format : formats) {
 
+            if (format instanceof PaginatedFormat) {
+                PaginatedFormat<T> paginated = (PaginatedFormat<T>) format;
+                paginated.format(inventory, this, skipFunction);
+                createPages(paginated.getSize());
+
+                continue;
+            }
+
+            format.format(inventory, this);
         }
 
-      /*  FORMATS.forEach(format -> {
-            if(format instanceof InventoryBuilder.MultiValueInventoryFormat) {
-                MultiValueInventoryFormat value = (MultiValueInventoryFormat) format;
-                value.map.clear();
-
-                int slot = this.start;
-
-                List<T> items = size <= 0 ? value.items : ListUtil.getSublist(value.items, page, size);
-                for(int index = 0; index < items.size(); slot++) {
-                    T item = items.get(index);
-
-                    if(item instanceof InventorySlot) {
-                        InventorySlot slotItem = (InventorySlot) item;
-                        if (slotItem.getSlot() >= 0) {
-                            inventory.setItem(slotItem.getSlot(), slotItem.getItem(this.inventory, this));
-                            value.map.put(slotItem.getSlot(), item);
-                        }
-
-                        index++;
-                        continue;
-                    }
-
-                    if(slot > this.exit) {
-                        break;
-                    }
-
-                    if(this.scape != null && this.scape.apply(slot)) {
-                        slot += this.value - 1;
-                        continue;
-                    }
-
-                    inventory.setItem(slot, item.getItem(this.inventory, this));
-                    value.map.put(slot, item);
-
-                    index++;
-                }
-
-                createPages(value.items.size());
-
-            } else if (format instanceof InventoryBuilder.SingleInventoryFormat) {
-                SingleInventoryFormat singleFormat = (SingleInventoryFormat) format;
-                if (singleFormat.slot >= 0) {
-                    inventory.setItem(singleFormat.slot, singleFormat.itemStack);
-                }
-
-            } else if (format instanceof InventoryBuilder.MultiItemInventoryFormat) {
-                MultiItemInventoryFormat value = (MultiItemInventoryFormat) format;
-                value.map.clear();
-
-                int slot = this.start;
-
-                List<ItemStack> items = size <= 0 ? value.items : ListUtil.getSublist(value.items, page, size);
-                for(int index = 0; index < items.size(); slot++) {
-                    if(slot > this.exit) {
-                        break;
-                    }
-
-                    if(this.scape != null && this.scape.apply(slot)) {
-                        slot += this.value - 1;
-                        continue;
-                    }
-
-                    ItemStack item = items.get(index);
-                    inventory.setItem(slot, item);
-                    value.map.put(slot, item);
-
-                    index++;
-                }
-
-                createPages(value.items.size());
-            }
-        });
-*/
         return this;
     }
 
     /**
-     * Create a pages of inventory
-     * @param size the size of list
+     * Open @{@link Inventory} to player
+     *
+     * @param player The @{@link Player}
+     *
+     * @return This @{@link InventoryBuilder}
      */
+    public InventoryBuilder<T> open(Player player) {
+        updateInventory();
+        player.openInventory(inventory);
+
+        return this;
+    }
+
+    /**
+     * Build inventory and open it to players.
+     *
+     * @param players he @{@link Player}
+     *
+     * @return The @{@link Inventory}
+     */
+    public Inventory build(Player... players) {
+        updateInventory();
+
+        for (Player player : players) {
+            player.openInventory(inventory);
+        }
+
+        return this.inventory;
+    }
+
+    private void updateInventory() {
+        format();
+
+        for (HumanEntity human : inventory.getViewers()) {
+            if (human instanceof Player) {
+                ((Player) human).updateInventory();
+            }
+        }
+    }
+
     private void createPages(int size) {
-        if(this.page > 1 && PAGES.containsKey(ButtonType.BACK)) {
-            Pair<Integer, ItemStack> pair = PAGES.get(ButtonType.BACK);
+        if(this.currentPage > 1 && buttons.containsKey(ButtonType.PREVIOUS_PAGE)) {
+            Pair<Integer, ItemStack> pair = buttons.get(ButtonType.PREVIOUS_PAGE);
             inventory.setItem(pair.getKey(), pair.getValue());
         }
 
-        if(this.size > 0 && PAGES.containsKey(ButtonType.NEXT) && size > this.page * this.size) {
-            Pair<Integer, ItemStack> pair = PAGES.get(ButtonType.NEXT);
+        if(this.currentPage > 0 && buttons.containsKey(ButtonType.NEXT_PAGE) && size > this.currentPage * this.pageSize) {
+            Pair<Integer, ItemStack> pair = buttons.get(ButtonType.NEXT_PAGE);
             inventory.setItem(pair.getKey(), pair.getValue());
         }
     }
 
     private Inventory createInventory(int size) {
-        return Bukkit.createInventory(new CustomInventoryHolder(event -> {
+        return Bukkit.createInventory(new CustomHolder(event -> {
             if (event instanceof InventoryClickEvent) {
                 InventoryClickEvent click = (InventoryClickEvent) event;
 
                 int slot = click.getRawSlot();
 
-                for(Map.Entry<ButtonType, Pair<Integer, ItemStack>> entry : PAGES.entrySet()) {
-                    if(entry.getValue().getKey() == slot) {
-                        this.page = this.page + entry.getKey().value;
-                        formatInventory();
+                for (Map.Entry<ButtonType, Pair<Integer, ItemStack>> entry : buttons.entrySet()) {
+                    if (entry.getValue().getKey() == slot) {
+                        this.currentPage = this.currentPage + entry.getKey().getValue();
+                        format();
                         return;
                     }
                 }
 
-/*            for (InventoryFormat<T> format : FORMATS) {
-                if (format.isValid(event.getRawSlot())) {
-                    format.accept(event);
-                    break;
+                for (InventoryFormat<T> format : formats) {
+                    if (format.isValid(slot)) {
+                        format.accept(click, this);
+                        break;
+                    }
                 }
-            }*/
+
             }
 
         }), size, inventoryName);
     }
 
-    /**
-     * Private enum of buttons to easy
-     * skip and back pages of the inventory
-     */
-    @AllArgsConstructor
-    private enum ButtonType {
+    @Data
+    public static class CustomHolder implements InventoryHolder {
 
-        BACK(-1),
-        NEXT(1);
+        private final Consumer<InventoryEvent> consumer;
 
-        private final int value;
+        @Override
+        public Inventory getInventory() {
+            return null;
+        }
     }
+
 }

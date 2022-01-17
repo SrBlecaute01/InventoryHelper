@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface InventoryItemType {
+public interface InventoryItem {
 
     @Nullable ItemStack getItem(@NotNull Inventory inventory, @NotNull InventoryProperty property);
 
