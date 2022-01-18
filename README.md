@@ -106,4 +106,4 @@ public class SimpleInventoryExample extends JavaPlugin implements Listener {
     }
 }
 ```
-Você pode ver mais exemplos como esse clicando [aqui](https://github.com/SrBlecaute01/InventoryHelper/tree/master/src/examples).
+Você pode ver mais exemplos como esse clicando [aqui](https://github.com/SrBlecaute01/InventoryHelper/tree/master/src/examples/java).
