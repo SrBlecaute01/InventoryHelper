@@ -2,7 +2,6 @@ package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.event.InventoryClick;
-import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.util.ListUtil;

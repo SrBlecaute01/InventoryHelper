@@ -11,7 +11,6 @@ import br.com.blecaute.inventory.format.impl.SimpleObjectFormat;
 import br.com.blecaute.inventory.format.impl.SimpleItemFormat;
 import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
-import br.com.blecaute.inventory.type.InventorySlot;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
