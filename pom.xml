@@ -67,9 +67,6 @@
                     <execution>
                         <id>add-source</id>
                         <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
                         <configuration>
                             <sources>
                                 <source>src/examples/java</source>
