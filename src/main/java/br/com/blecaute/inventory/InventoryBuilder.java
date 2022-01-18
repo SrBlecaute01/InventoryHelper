@@ -1,7 +1,7 @@
 package br.com.blecaute.inventory;
 
+import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.enums.ButtonType;
-import br.com.blecaute.inventory.event.InventoryClick;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.format.PaginatedFormat;
@@ -18,7 +18,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -127,14 +126,14 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @param slot      The slot
      * @param itemStack The @{@link ItemStack}
-     * @param consumer  The @{@link InventoryClick} callback.
+     * @param callBack  The @{@link ItemCallback}
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItem(int slot, ItemStack itemStack, Consumer<InventoryClick<T>> consumer) {
+    public InventoryBuilder<T> withItem(int slot, ItemStack itemStack, ItemCallback<T> callBack) {
 
         if (slot > 0) {
-            formats.add(new SimpleItemFormat<>(slot, itemStack, consumer));
+            formats.add(new SimpleItemFormat<>(slot, itemStack, callBack));
         }
 
         return this;
@@ -144,12 +143,12 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * Set items in @{@link Inventory} with pagination
      *
      * @param items     The list of @{@link ItemStack}
-     * @param consumer  The @{@link InventoryClick} callback.
+     * @param callBack  The @{@link ItemCallback}
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItems(List<ItemStack> items, Consumer<InventoryClick<T>> consumer) {
-        formats.add(new PaginatedItemFormat<>(items, consumer));
+    public InventoryBuilder<T> withItems(List<ItemStack> items, ItemCallback<T> callBack) {
+        formats.add(new PaginatedItemFormat<>(items, callBack));
         return this;
     }
 
@@ -158,14 +157,14 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @param slot      The slot
      * @param value     The @{@link InventoryItem}
-     * @param consumer  The @{@link InventoryClick} callback.
+     * @param callBack  The @{@link ItemCallback}
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withObject(int slot, T value, Consumer<InventoryClick<T>> consumer) {
+    public InventoryBuilder<T> withObject(int slot, T value, ItemCallback<T> callBack) {
 
         if (slot > 0) {
-            formats.add(new SimpleObjectFormat<>(slot, value, consumer));
+            formats.add(new SimpleObjectFormat<>(slot, value, callBack));
         }
 
         return this;
@@ -175,12 +174,12 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * Set items in @{@link Inventory} with @{@link InventoryItem} and pagination
      *
      * @param objects   The list of @{@link InventoryItem}
-     * @param consumer  The @{@link InventoryClick} callback.
+     * @param callBack  The @{@link ItemCallback}
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withObjects(List<T> objects, Consumer<InventoryClick<T>> consumer) {
-        formats.add(new PaginatedObjectFormat<>(objects, consumer));
+    public InventoryBuilder<T> withObjects(List<T> objects, ItemCallback<T> callBack) {
+        formats.add(new PaginatedObjectFormat<>(objects, callBack));
         return this;
     }
 
@@ -323,8 +322,8 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
     private Inventory createInventory(int size) {
         return Bukkit.createInventory(new CustomHolder(event -> {
-            if (event instanceof InventoryClickEvent) {
-                InventoryClickEvent click = (InventoryClickEvent) event;
+            if (event instanceof org.bukkit.event.inventory.InventoryClickEvent) {
+                org.bukkit.event.inventory.InventoryClickEvent click = (org.bukkit.event.inventory.InventoryClickEvent) event;
 
                 int slot = click.getRawSlot();
 

@@ -1,7 +1,8 @@
 package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
-import br.com.blecaute.inventory.event.InventoryClick;
+import br.com.blecaute.inventory.callback.ItemCallback;
+import br.com.blecaute.inventory.event.InventoryEvent;
 import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.util.ListUtil;
@@ -15,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Data
@@ -23,7 +23,7 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
 
     @NonNull
     private final List<ItemStack> items;
-    private final Consumer<InventoryClick<T>> consumer;
+    private final ItemCallback<T> callBack;
 
     private final Set<Integer> slots = new HashSet<>();
 
@@ -34,7 +34,7 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
 
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
-        accept(consumer, new InventoryClick<>(event, event.getCurrentItem(), null));
+        accept(callBack, new InventoryEvent<>(event, event.getCurrentItem(), null));
     }
 
     @Override

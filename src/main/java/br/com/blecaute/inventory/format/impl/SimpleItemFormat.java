@@ -1,7 +1,8 @@
 package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
-import br.com.blecaute.inventory.event.InventoryClick;
+import br.com.blecaute.inventory.callback.ItemCallback;
+import br.com.blecaute.inventory.event.InventoryEvent;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
 import lombok.Data;
@@ -10,14 +11,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Consumer;
-
 @Data
 public class SimpleItemFormat<T extends InventoryItem> implements InventoryFormat<T> {
 
     private final int slot;
     private final ItemStack itemStack;
-    private final Consumer<InventoryClick<T>> consumer;
+    private final ItemCallback<T> callBack;
 
     @Override
     public boolean isValid(int slot) {
@@ -26,7 +25,7 @@ public class SimpleItemFormat<T extends InventoryItem> implements InventoryForma
 
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
-        accept(consumer, new InventoryClick<>(event, itemStack, null));
+        accept(callBack, new InventoryEvent<>(event, itemStack, null));
     }
 
     @Override

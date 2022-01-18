@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Data
-public class InventoryClick<T extends InventoryItem> {
+public class InventoryEvent<T extends InventoryItem> {
 
     @NotNull private final InventoryClickEvent event;
     @NotNull private final ItemStack itemStack;
