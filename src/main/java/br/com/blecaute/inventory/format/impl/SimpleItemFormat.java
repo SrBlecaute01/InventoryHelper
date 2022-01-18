@@ -25,7 +25,7 @@ public class SimpleItemFormat<T extends InventoryItem> implements InventoryForma
 
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
-        accept(callBack, new InventoryEvent<>(event, itemStack, null));
+        accept(callBack, new InventoryEvent<>(event, itemStack, builder.getProperties(), null));
     }
 
     @Override

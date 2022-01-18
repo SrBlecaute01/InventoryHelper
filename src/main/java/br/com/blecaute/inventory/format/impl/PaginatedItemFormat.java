@@ -34,7 +34,7 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
 
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
-        accept(callBack, new InventoryEvent<>(event, event.getCurrentItem(), null));
+        accept(callBack, new InventoryEvent<>(event, event.getCurrentItem(), builder.getProperties(), null));
     }
 
     @Override
