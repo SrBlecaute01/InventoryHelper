@@ -1,6 +1,9 @@
 [jitpack]: https://img.shields.io/jitpack/v/github/SrBlecaute01/InventoryHelper?label=Snapshots&color=lime_green
 
 # InventoryHelper
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1ec3cbe451ba4011a0e118039eee1e71)](https://app.codacy.com/gh/SrBlecaute01/InventoryHelper?utm_source=github.com&utm_medium=referral&utm_content=SrBlecaute01/InventoryHelper&utm_campaign=Badge_Grade_Settings)
+
 Um auxiliar para criação de inventários no minecraft com maior facilidade e flexibilidade afim de promover integração com objetos.
 
 ## Download
