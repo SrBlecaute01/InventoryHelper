@@ -56,7 +56,7 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
         int page = builder.getCurrentPage();
 
         List<ItemStack> values = size <= 0 ? items : ListUtil.getSublist(items, page, size);
-        for(int index = 0; index < values.size() && slot <= exit; slot++) {
+        for(int index = 0; index < values.size() && slot < exit; slot++) {
 
             if(skipFunction != null && skipFunction.apply(slot)) continue;
 

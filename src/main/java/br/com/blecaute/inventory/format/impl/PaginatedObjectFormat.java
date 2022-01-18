@@ -4,6 +4,7 @@ import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.event.InventoryClick;
 import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
+import br.com.blecaute.inventory.type.InventorySlot;
 import br.com.blecaute.inventory.util.ListUtil;
 import lombok.Data;
 import lombok.NonNull;
@@ -53,14 +54,26 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
         int page = builder.getCurrentPage();
 
         List<T> values = size <= 0 ? items : ListUtil.getSublist(items, page, size);
-        for(int index = 0; index < values.size() && slot <= exit; slot++) {
+        for(int index = 0; index < values.size() && slot < exit; slot++) {
+
+            T value = values.get(index);
+
+            if (value instanceof InventorySlot) {
+                InventorySlot inventorySlot = (InventorySlot) value;
+                if (inventorySlot.getSlot() > 0) {
+                    inventory.setItem(inventorySlot.getSlot(), value.getItem(inventory, builder.getProperties()));
+                    slots.put(slot, value);
+                }
+
+                index++;
+                continue;
+            }
 
             if(skipFunction != null && skipFunction.apply(slot)) continue;
 
-            T value = values.get(index);
             inventory.setItem(slot, value.getItem(inventory, builder.getProperties()));
-
             slots.put(slot, value);
+
             index++;
         }
 
