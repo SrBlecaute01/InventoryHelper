@@ -12,10 +12,8 @@
     </a>
 </p>
 
-<p align="center">
-    Um auxiliar para criação de inventários no minecraft com maior facilidade 
-    e flexibilidade  afim de promover integração com objetos.
-</p>
+Um auxiliar para criação de inventários no minecraft com maior facilidade 
+e flexibilidade  afim de promover integração com objetos.
 
 ## Recursos
 
