@@ -21,9 +21,8 @@ import java.util.function.Function;
 @Data
 public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFormat<T> {
 
-    @NonNull
-    private final List<ItemStack> items;
-    private final ItemCallback<T> callBack;
+    @NonNull private final List<ItemStack> items;
+    @Nullable private final ItemCallback<T> callBack;
 
     private final Set<Integer> slots = new HashSet<>();
 
@@ -34,7 +33,9 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
 
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
-        accept(callBack, new InventoryEvent<>(event, event.getCurrentItem(), builder.getProperties(), null));
+        if (this.callBack != null) {
+            this.callBack.accept(new InventoryEvent<>(event, event.getCurrentItem(), builder.getProperties(), null));
+        }
     }
 
     @Override

@@ -22,6 +22,8 @@ import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -116,7 +118,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param skip The @{@link Function} to check slot.
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withSkip(Function<Integer, Boolean> skip) {
+    public InventoryBuilder<T> withSkip(@Nullable Function<Integer, Boolean> skip) {
         this.skipFunction = skip;
         return this;
     }
@@ -130,7 +132,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItem(int slot, ItemStack itemStack, ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withItem(int slot, @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
 
         if (slot > 0) {
             formats.add(new SimpleItemFormat<>(slot, itemStack, callBack));
@@ -147,7 +149,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItems(List<ItemStack> items, ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withItems(@NotNull List<ItemStack> items, @Nullable ItemCallback<T> callBack) {
         formats.add(new PaginatedItemFormat<>(items, callBack));
         return this;
     }
@@ -161,7 +163,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withObject(int slot, T value, ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withObject(int slot, @NotNull T value, @Nullable ItemCallback<T> callBack) {
 
         if (slot > 0) {
             formats.add(new SimpleObjectFormat<>(slot, value, callBack));
@@ -178,7 +180,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withObjects(List<T> objects, ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable ItemCallback<T> callBack) {
         formats.add(new PaginatedObjectFormat<>(objects, callBack));
         return this;
     }
@@ -192,7 +194,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withButton(ButtonType type, int slot, ItemStack itemStack) {
+    public InventoryBuilder<T> withButton(@NotNull ButtonType type, int slot, @NotNull ItemStack itemStack) {
         buttons.put(type, Pair.of(slot, itemStack));
         return this;
     }
@@ -205,7 +207,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withProperty(String key, Object object) {
+    public InventoryBuilder<T> withProperty(@NotNull String key, @NotNull Object object) {
         this.properties.set(key, object);
         return this;
     }
@@ -217,7 +219,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withProperties(InventoryProperty properties) {
+    public InventoryBuilder<T> withProperties(@NotNull InventoryProperty properties) {
         this.properties = properties;
         return this;
     }

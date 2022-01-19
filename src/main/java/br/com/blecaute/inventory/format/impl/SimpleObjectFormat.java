@@ -10,13 +10,14 @@ import lombok.NonNull;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Data
 public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFormat<T> {
 
     private final int slot;
     @NonNull private final T object;
-    private final ItemCallback<T> callBack;
+    @Nullable private final ItemCallback<T> callBack;
 
     @Override
     public boolean isValid(int slot) {
@@ -25,7 +26,9 @@ public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFor
 
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
-        accept(callBack, new InventoryEvent<>(event, event.getCurrentItem(), builder.getProperties(), object));
+        if (this.callBack != null) {
+            this.callBack.accept(new InventoryEvent<>(event, event.getCurrentItem(), builder.getProperties(), object));
+        }
     }
 
     @Override
