@@ -24,7 +24,7 @@ public class InventoryHelper {
      * @param plugin The @{@link Plugin}
      */
     public static void enable(Plugin plugin) {
-        if (!enabled) return;
+        if (enabled) return;
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new InventoryClickListener(), plugin);
