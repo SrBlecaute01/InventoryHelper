@@ -62,7 +62,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
         int size = Math.min(6, Math.max(1, lines)) * 9;
         this.inventoryName = name.replace("&", "§");
-        this.exitSlot = size - 1;
+        this.exitSlot = size;
         this.inventory = createInventory(size);
     }
 
