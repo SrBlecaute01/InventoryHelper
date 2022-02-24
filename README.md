@@ -4,16 +4,30 @@
     <a href="https://jitpack.io/#SrBlecaute01/InventoryHelper" alt="Downloads">
         <img src=https://img.shields.io/jitpack/v/github/SrBlecaute01/InventoryHelper?label=Snapshots&color=lime_green/>
     </a>
+<<<<<<< Updated upstream
     <a href="" alt="Downloads">
         <img src=https://img.shields.io/github/downloads/SrBlecaute01/InventoryHelper/total?color=lime_green/>
     </a>
     <a href="" alt="Codacy">
+=======
+    <a href="https://github.com/SrBlecaute01/InventoryHelper/releases" alt="Downloads">
+        <img src=https://img.shields.io/github/downloads/SrBlecaute01/InventoryHelper/total?color=lime_green/>
+    </a>
+    <a href="https://app.codacy.com/project/badge/Grade/7062d74db06d4935a5e69a7a539e4116" alt="Codacy">
+>>>>>>> Stashed changes
         <img src="https://app.codacy.com/project/badge/Grade/7062d74db06d4935a5e69a7a539e4116"/>
     </a>
 </p>
 
+<<<<<<< Updated upstream
 Um auxiliar para criação de inventários no minecraft com maior facilidade 
 e flexibilidade  afim de promover integração com objetos.
+=======
+<p align="center">
+    Um auxiliar para criação de inventários no minecraft com maior facilidade 
+    e flexibilidade  afim de promover integração com objetos.
+</p>
+>>>>>>> Stashed changes
 
 ## Recursos
 
@@ -36,7 +50,10 @@ Versão mais recente: [Release](https://github.com/SrBlecaute01/InventoryHelper/
         <url>https://jitpack.io</url>
     </repository>
 </repositories>
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 <dependencies>
     <dependency>
         <groupId>com.github.SrBlecaute01</groupId>
@@ -105,4 +122,8 @@ public class SimpleInventoryExample extends JavaPlugin implements Listener {
     }
 }
 ```
+<<<<<<< Updated upstream
 Você pode ver mais exemplos como esse clicando [aqui](https://github.com/SrBlecaute01/InventoryHelper/tree/master/src/examples/java).
+=======
+Você pode ver mais exemplos como esse clicando [aqui](https://github.com/SrBlecaute01/InventoryHelper/tree/master/src/examples).
+>>>>>>> Stashed changes
