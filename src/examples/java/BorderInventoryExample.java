@@ -1,4 +1,3 @@
-
 import br.com.blecaute.inventory.InventoryBuilder;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -89,5 +88,4 @@ public class BorderInventoryExample {
 
         return itemStack;
     }
-
 }

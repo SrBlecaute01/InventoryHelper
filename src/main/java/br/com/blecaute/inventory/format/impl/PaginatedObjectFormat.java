@@ -65,9 +65,11 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
 
             if (value instanceof InventorySlot) {
                 InventorySlot inventorySlot = (InventorySlot) value;
-                if (inventorySlot.getSlot() > 0) {
-                    inventory.setItem(inventorySlot.getSlot(), value.getItem(inventory, builder.getProperties()));
-                    slots.put(slot, value);
+
+                int itemSlot = inventorySlot.getSlot();
+                if (itemSlot > 0) {
+                    inventory.setItem(itemSlot, value.getItem(inventory, builder.getProperties()));
+                    slots.put(itemSlot, value);
                 }
 
                 index++;
