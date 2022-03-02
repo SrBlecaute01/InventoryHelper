@@ -133,7 +133,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItem(int slot, @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
 
         if (slot > 0) {
             formats.add(new SimpleItemFormat<>(slot, itemStack, callBack));
