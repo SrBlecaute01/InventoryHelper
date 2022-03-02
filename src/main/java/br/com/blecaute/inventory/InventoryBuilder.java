@@ -142,6 +142,11 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         return this;
     }
 
+    public InventoryBuilder<T> withItems(@NotNull ItemStack[] items, @Nullable ItemCallback<T> callBack) {
+        withItems(Arrays.asList(items), callBack);
+        return this;
+    }
+
     public InventoryBuilder<T> withItems(@NotNull Collection<ItemStack> items, @Nullable ItemCallback<T> callBack) {
         withItems(new ArrayList<>(items), callBack);
         return this;
@@ -175,6 +180,11 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
             formats.add(new SimpleObjectFormat<>(slot, value, callBack));
         }
 
+        return this;
+    }
+
+    public InventoryBuilder<T> withObjects(@NotNull T[] objects, @Nullable ObjectCallback<T> callBack) {
+        withObjects(Arrays.asList(objects), callBack);
         return this;
     }
 
