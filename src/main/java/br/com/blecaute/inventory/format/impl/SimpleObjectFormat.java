@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFormat<T> {
 
     private final int slot;
+
     @NonNull private final T object;
     @Nullable private final ObjectCallback<T> callBack;
 

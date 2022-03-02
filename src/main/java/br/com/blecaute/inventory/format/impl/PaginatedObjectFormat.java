@@ -20,9 +20,8 @@ import java.util.function.Function;
 @Data
 public class PaginatedObjectFormat<T extends InventoryItem> implements PaginatedFormat<T> {
 
-    @NonNull
-    private final List<T> items;
-    private final ObjectCallback<T> callBack;
+    @NonNull private final List<T> items;
+    @Nullable private final ObjectCallback<T> callBack;
 
     private final Map<Integer, T> slots = new HashMap<>();
 

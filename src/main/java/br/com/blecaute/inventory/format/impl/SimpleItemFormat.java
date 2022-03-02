@@ -2,7 +2,6 @@ package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ItemCallback;
-import br.com.blecaute.inventory.event.InventoryEvent;
 import br.com.blecaute.inventory.event.ItemClickEvent;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
@@ -17,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public class SimpleItemFormat<T extends InventoryItem> implements InventoryFormat<T> {
 
     private final int slot;
+
     @Nullable private final ItemStack itemStack;
     @Nullable private final ItemCallback<T> callBack;
 
