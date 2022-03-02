@@ -5,7 +5,6 @@ import br.com.blecaute.inventory.type.InventoryItem;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * The event called when the player clicks on an object.
@@ -30,7 +29,8 @@ public class ObjectClickEvent<T extends InventoryItem> extends ItemClickEvent<T>
      */
     @Override
     @SuppressWarnings("deprecation")
-    public @Nullable T getObject() {
+    @NotNull
+    public T getObject() {
         return object;
     }
 }
