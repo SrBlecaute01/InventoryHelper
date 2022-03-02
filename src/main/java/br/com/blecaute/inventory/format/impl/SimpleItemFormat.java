@@ -3,6 +3,7 @@ package br.com.blecaute.inventory.format.impl;
 import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.event.InventoryEvent;
+import br.com.blecaute.inventory.event.ItemClickEvent;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
 import lombok.Data;
@@ -27,7 +28,7 @@ public class SimpleItemFormat<T extends InventoryItem> implements InventoryForma
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
         if (this.itemStack != null && this.callBack != null) {
-            this.callBack.accept(new InventoryEvent<>(event, itemStack, builder.getProperties(), null));
+            this.callBack.accept(new ItemClickEvent<>(event, itemStack, builder.getProperties()));
         }
     }
 

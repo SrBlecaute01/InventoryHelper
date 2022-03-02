@@ -2,7 +2,7 @@ package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ObjectCallback;
-import br.com.blecaute.inventory.event.InventoryEvent;
+import br.com.blecaute.inventory.event.ObjectClickEvent;
 import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.type.InventorySlot;
@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.NonNull;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,10 +34,10 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
         if (this.callBack != null) {
-            ItemStack item = event.getCurrentItem();
-            T object = slots.get(event.getRawSlot());
-
-            this.callBack.accept(new InventoryEvent<>(event, item, builder.getProperties(), object), object);
+            this.callBack.accept(new ObjectClickEvent<>(event,
+                    event.getCurrentItem(),
+                    builder.getProperties(),
+                    slots.get(event.getRawSlot())));
         }
     }
 
