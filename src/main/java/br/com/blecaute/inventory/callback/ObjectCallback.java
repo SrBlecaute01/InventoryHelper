@@ -4,8 +4,8 @@ import br.com.blecaute.inventory.event.InventoryEvent;
 import br.com.blecaute.inventory.type.InventoryItem;
 
 @FunctionalInterface
-public interface ItemCallback<T extends InventoryItem> {
+public interface ObjectCallback<T extends InventoryItem> {
 
-    void accept(InventoryEvent<T> click);
+    void accept(InventoryEvent<T> event, T t);
 
 }

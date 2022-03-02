@@ -1,7 +1,7 @@
 package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
-import br.com.blecaute.inventory.callback.ItemCallback;
+import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.event.InventoryEvent;
 import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NonNull;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +23,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
 
     @NonNull
     private final List<T> items;
-    private final ItemCallback<T> callBack;
+    private final ObjectCallback<T> callBack;
 
     private final Map<Integer, T> slots = new HashMap<>();
 
@@ -34,10 +35,10 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
         if (this.callBack != null) {
-            this.callBack.accept(new InventoryEvent<>(event,
-                    event.getCurrentItem(),
-                    builder.getProperties(),
-                    slots.get(event.getRawSlot())));
+            ItemStack item = event.getCurrentItem();
+            T object = slots.get(event.getRawSlot());
+
+            this.callBack.accept(new InventoryEvent<>(event, item, builder.getProperties(), object), object);
         }
     }
 

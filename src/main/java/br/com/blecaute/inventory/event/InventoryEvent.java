@@ -34,5 +34,6 @@ public class InventoryEvent<T extends InventoryItem> {
      * The object
      */
     @Nullable
+    @Deprecated
     private final T object;
 }

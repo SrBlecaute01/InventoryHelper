@@ -1,6 +1,7 @@
 package br.com.blecaute.inventory;
 
 import br.com.blecaute.inventory.callback.ItemCallback;
+import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.enums.ButtonType;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
@@ -172,6 +173,11 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         return this;
     }
 
+    public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable ObjectCallback<T> callBack) {
+        formats.add(new PaginatedObjectFormat<>(objects, callBack));
+        return this;
+    }
+
     /**
      * Set items in @{@link Inventory} with @{@link InventoryItem} and pagination
      *
@@ -180,8 +186,13 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
+    @Deprecated
     public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable ItemCallback<T> callBack) {
-        formats.add(new PaginatedObjectFormat<>(objects, callBack));
+        formats.add(new PaginatedObjectFormat<>(objects, (event, t) -> {
+            if (callBack != null) {
+                callBack.accept(event);
+            }
+        }));
         return this;
     }
 

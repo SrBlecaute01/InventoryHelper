@@ -1,6 +1,6 @@
 package br.com.blecaute.inventory.util;
 
-import java.util.List;
+import java.util.*;
 
 public class ListUtil {
 
