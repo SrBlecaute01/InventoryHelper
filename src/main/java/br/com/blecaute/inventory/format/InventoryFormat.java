@@ -7,24 +7,25 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represent interface to format @{@link Inventory}
+ * Interface to format @{@link Inventory} in @{@link InventoryBuilder}
+ *
+ * @param <T> The type of @{@link InventoryItem}
  */
 public interface InventoryFormat<T extends InventoryItem> {
 
     /**
      * Check if clicked slot is valid
      *
-     * @param slot  The slot
-     *
+     * @param slot The slot
      * @return true if slot is valid.
      */
     boolean isValid(int slot);
 
     /**
-     * Accept click
+     * Accept click event
      *
-     * @param event     The @{@link InventoryClickEvent}
-     * @param builder   The @{@link InventoryBuilder}
+     * @param event The @{@link InventoryClickEvent}
+     * @param builder The @{@link InventoryBuilder}
      */
     void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder);
 
@@ -32,7 +33,7 @@ public interface InventoryFormat<T extends InventoryItem> {
      * Format inventory
      *
      * @param inventory The @{@link Inventory}
-     * @param builder   The @{@link InventoryBuilder}
+     * @param builder The @{@link InventoryBuilder}
      */
     void format(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder);
 

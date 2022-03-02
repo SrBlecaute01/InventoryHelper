@@ -22,8 +22,7 @@ import java.util.function.Function;
 @Data
 public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFormat<T> {
 
-    @NonNull
-    private final List<ItemStack> items;
+    @NonNull private final List<ItemStack> items;
     @Nullable private final ItemCallback<T> callBack;
 
     private final Set<Integer> slots = new HashSet<>();

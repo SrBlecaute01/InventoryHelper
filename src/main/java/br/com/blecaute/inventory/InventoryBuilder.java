@@ -142,14 +142,26 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         return this;
     }
 
+    /**
+     * Set items in @{@link Inventory} with pagination
+     *
+     * @param items The array of @{@link ItemStack}
+     * @param callBack The @{@link ItemCallback}
+     * @return This @{@link InventoryBuilder}
+     */
     public InventoryBuilder<T> withItems(@NotNull ItemStack[] items, @Nullable ItemCallback<T> callBack) {
-        withItems(Arrays.asList(items), callBack);
-        return this;
+        return withItems(Arrays.asList(items), callBack);
     }
 
+    /**
+     * Set items in @{@link Inventory} with pagination
+     *
+     * @param items The collection of @{@link ItemStack}
+     * @param callBack The @{@link ItemCallback}
+     * @return This @{@link InventoryBuilder}
+     */
     public InventoryBuilder<T> withItems(@NotNull Collection<ItemStack> items, @Nullable ItemCallback<T> callBack) {
-        withItems(new ArrayList<>(items), callBack);
-        return this;
+        return withItems(new ArrayList<>(items), callBack);
     }
 
     /**
@@ -183,14 +195,26 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         return this;
     }
 
+    /**
+     * Set items in @{@link Inventory} with pagination
+     *
+     * @param objects The array of @{@link InventoryItem}
+     * @param callBack The @{@link ObjectCallback}
+     * @return This @{@link InventoryBuilder}
+     */
     public InventoryBuilder<T> withObjects(@NotNull T[] objects, @Nullable ObjectCallback<T> callBack) {
-        withObjects(Arrays.asList(objects), callBack);
-        return this;
+        return withObjects(Arrays.asList(objects), callBack);
     }
 
+    /**
+     * Set items in @{@link Inventory} with pagination
+     *
+     * @param objects The collection of @{@link InventoryItem}
+     * @param callBack The @{@link ObjectCallback}
+     * @return This @{@link InventoryBuilder}
+     */
     public InventoryBuilder<T> withObjects(@NotNull Collection<T> objects, @Nullable ObjectCallback<T> callBack) {
-        withObjects(new ArrayList<>(objects), callBack);
-        return this;
+        return withObjects(new ArrayList<>(objects), callBack);
     }
 
     /**

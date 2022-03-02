@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 /**
- * Implementation of @{@link InventoryFormat} to paginated inventory.
+ * Interface to create paginated inventory in @{@link InventoryBuilder}
  */
 public interface PaginatedFormat<T extends InventoryItem> extends InventoryFormat<T> {
 
