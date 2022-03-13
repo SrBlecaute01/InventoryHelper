@@ -1,8 +1,10 @@
 package br.com.blecaute.inventory.exception;
 
+import br.com.blecaute.inventory.InventoryBuilder;
+
 /**
  * InventoryBuilderException is a runtime exception called
- * when an error is encountered in @{@link br.com.blecaute.inventory.InventoryBuilder}
+ * when an error is encountered in @{@link InventoryBuilder}
  */
 public class InventoryBuilderException extends RuntimeException {
 

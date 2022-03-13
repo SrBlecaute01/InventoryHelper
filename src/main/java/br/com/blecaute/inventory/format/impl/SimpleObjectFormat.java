@@ -1,8 +1,8 @@
 package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
-import br.com.blecaute.inventory.callback.ItemCallback;
-import br.com.blecaute.inventory.event.InventoryEvent;
+import br.com.blecaute.inventory.callback.ObjectCallback;
+import br.com.blecaute.inventory.event.ObjectClickEvent;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
 import lombok.Data;
@@ -16,8 +16,9 @@ import org.jetbrains.annotations.Nullable;
 public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFormat<T> {
 
     private final int slot;
+
     @NonNull private final T object;
-    @Nullable private final ItemCallback<T> callBack;
+    @Nullable private final ObjectCallback<T> callBack;
 
     @Override
     public boolean isValid(int slot) {
@@ -27,7 +28,7 @@ public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFor
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
         if (this.callBack != null) {
-            this.callBack.accept(new InventoryEvent<>(event, event.getCurrentItem(), builder.getProperties(), object));
+            this.callBack.accept(new ObjectClickEvent<>(event, event.getCurrentItem(), builder.getProperties(), object));
         }
     }
 

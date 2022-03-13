@@ -6,6 +6,7 @@ import br.com.blecaute.inventory.InventoryBuilder;
 import lombok.Data;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +33,24 @@ public class InventoryEvent<T extends InventoryItem> {
 
     /**
      * The object
+     *
+     * @deprecated Please use this parameter
+     * only in @{@link ObjectClickEvent}
+     *
+     */
+    private final T object;
+
+    /**
+     * The object of @{@link InventoryItem}
+     *
+     * @deprecated Please use this method
+     * only in @{@link ObjectClickEvent}
+     *
      */
     @Nullable
-    private final T object;
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "1.3.2")
+    public T getObject() {
+        return object;
+    }
 }

@@ -1,6 +1,7 @@
 package br.com.blecaute.inventory;
 
 import br.com.blecaute.inventory.callback.ItemCallback;
+import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.enums.ButtonType;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
@@ -132,13 +133,35 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItem(int slot, @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
 
         if (slot > 0) {
             formats.add(new SimpleItemFormat<>(slot, itemStack, callBack));
         }
 
         return this;
+    }
+
+    /**
+     * Set items in @{@link Inventory} with pagination
+     *
+     * @param items The array of @{@link ItemStack}
+     * @param callBack The @{@link ItemCallback}
+     * @return This @{@link InventoryBuilder}
+     */
+    public InventoryBuilder<T> withItems(@NotNull ItemStack[] items, @Nullable ItemCallback<T> callBack) {
+        return withItems(Arrays.asList(items), callBack);
+    }
+
+    /**
+     * Set items in @{@link Inventory} with pagination
+     *
+     * @param items The collection of @{@link ItemStack}
+     * @param callBack The @{@link ItemCallback}
+     * @return This @{@link InventoryBuilder}
+     */
+    public InventoryBuilder<T> withItems(@NotNull Collection<ItemStack> items, @Nullable ItemCallback<T> callBack) {
+        return withItems(new ArrayList<>(items), callBack);
     }
 
     /**
@@ -163,7 +186,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withObject(int slot, @NotNull T value, @Nullable ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withObject(int slot, @NotNull T value, @Nullable ObjectCallback<T> callBack) {
 
         if (slot > 0) {
             formats.add(new SimpleObjectFormat<>(slot, value, callBack));
@@ -173,14 +196,36 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     }
 
     /**
-     * Set items in @{@link Inventory} with @{@link InventoryItem} and pagination
+     * Set items in @{@link Inventory} with pagination
      *
-     * @param objects   The list of @{@link InventoryItem}
-     * @param callBack  The @{@link ItemCallback}
+     * @param objects The array of @{@link InventoryItem}
+     * @param callBack The @{@link ObjectCallback}
+     * @return This @{@link InventoryBuilder}
+     */
+    public InventoryBuilder<T> withObjects(@NotNull T[] objects, @Nullable ObjectCallback<T> callBack) {
+        return withObjects(Arrays.asList(objects), callBack);
+    }
+
+    /**
+     * Set items in @{@link Inventory} with pagination
+     *
+     * @param objects The collection of @{@link InventoryItem}
+     * @param callBack The @{@link ObjectCallback}
+     * @return This @{@link InventoryBuilder}
+     */
+    public InventoryBuilder<T> withObjects(@NotNull Collection<T> objects, @Nullable ObjectCallback<T> callBack) {
+        return withObjects(new ArrayList<>(objects), callBack);
+    }
+
+    /**
+     * Set items in @{@link Inventory} with pagination
+     *
+     * @param objects   The list of objects
+     * @param callBack  The @{@link ObjectCallback}
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable ObjectCallback<T> callBack) {
         formats.add(new PaginatedObjectFormat<>(objects, callBack));
         return this;
     }

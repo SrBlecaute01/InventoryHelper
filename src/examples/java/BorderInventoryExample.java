@@ -1,4 +1,6 @@
 import br.com.blecaute.inventory.InventoryBuilder;
+import br.com.blecaute.inventory.type.InventoryItem;
+import com.google.common.collect.Lists;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerDropItemEvent;

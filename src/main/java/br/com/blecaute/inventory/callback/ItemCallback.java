@@ -1,11 +1,11 @@
 package br.com.blecaute.inventory.callback;
 
-import br.com.blecaute.inventory.event.InventoryEvent;
+import br.com.blecaute.inventory.event.ItemClickEvent;
 import br.com.blecaute.inventory.type.InventoryItem;
 
-@FunctionalInterface
-public interface ItemCallback<T extends InventoryItem> {
-
-    void accept(InventoryEvent<T> click);
-
-}
+/**
+ * The interface responsible for returning the click on items.
+ *
+ * @param <T> The type of @{@link InventoryItem}
+ */
+public interface ItemCallback<T extends InventoryItem> extends InventoryCallback<T, ItemClickEvent<T>> {}
