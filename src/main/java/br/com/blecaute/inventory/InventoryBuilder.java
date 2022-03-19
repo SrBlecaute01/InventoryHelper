@@ -50,7 +50,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
     private InventoryProperty properties = new InventoryProperty();
     private Map<ButtonType, Pair<Integer, ItemStack>> buttons = new EnumMap<>(ButtonType.class);
-    private Set<InventoryFormat<T>> formats = new HashSet<>();
+    private Set<InventoryFormat<T>> formats = new LinkedHashSet<>();
 
     /**
      * Create instance of @{@link InventoryBuilder}
@@ -281,7 +281,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
             clone.inventory = clone.createInventory(this.inventory.getSize());
             clone.properties = this.properties.clone();
             clone.buttons = new EnumMap<>(this.buttons);
-            clone.formats = new HashSet<>(this.formats);
+            clone.formats = new LinkedHashSet<>(this.formats);
 
             return clone;
 
