@@ -12,6 +12,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 @Data
 public class SimpleItemFormat<T extends InventoryItem> implements InventoryFormat<T> {
 
@@ -37,4 +39,25 @@ public class SimpleItemFormat<T extends InventoryItem> implements InventoryForma
         inventory.setItem(slot, itemStack);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o instanceof SimpleObjectFormat) {
+            SimpleObjectFormat<?> that = (SimpleObjectFormat<?>) o;
+            return getSlot() == that.getSlot();
+        }
+
+        if (o instanceof SimpleItemFormat) {
+            SimpleItemFormat<?> that = (SimpleItemFormat<?>) o;
+            return getSlot() == that.getSlot();
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSlot());
+    }
 }
