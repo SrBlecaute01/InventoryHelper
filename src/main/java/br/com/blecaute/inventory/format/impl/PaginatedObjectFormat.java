@@ -33,10 +33,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
         if (this.callBack != null) {
-            this.callBack.accept(new ObjectClickEvent<>(event,
-                    event.getCurrentItem(),
-                    builder.getProperties(),
-                    slots.get(event.getRawSlot())));
+            this.callBack.accept(new ObjectClickEvent<>(this, builder, event, slots.get(event.getRawSlot())));
         }
     }
 

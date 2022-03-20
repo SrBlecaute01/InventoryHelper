@@ -288,7 +288,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         } catch (Exception exception) {
             throw new InventoryBuilderException(exception);
         }
-
     }
 
     /**
