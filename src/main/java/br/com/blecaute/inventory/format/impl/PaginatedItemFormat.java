@@ -83,6 +83,7 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
         }
     }
 
+    @Override
     public void update(int slot, ItemStack itemStack, ItemCallback<T> callback) {
         SimpleItemFormat<T> format = slots.get(slot);
         if (format != null) {

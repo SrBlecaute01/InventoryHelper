@@ -49,6 +49,7 @@ public class SimpleItemFormat<T extends InventoryItem> implements InventoryForma
         inventory.setItem(slot, itemStack);
     }
 
+    @Override
     public void update(int slot, @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callback) {
         this.slot = slot;
         this.itemStack = itemStack;
