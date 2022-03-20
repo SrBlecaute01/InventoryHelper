@@ -2,11 +2,11 @@ package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ItemCallback;
-import br.com.blecaute.inventory.event.ItemClickEvent;
 import br.com.blecaute.inventory.format.PaginatedFormat;
+import br.com.blecaute.inventory.format.UpdatableFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.util.ListUtil;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -14,28 +14,35 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-@Data
-public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFormat<T> {
+@Getter
+public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFormat<T>, UpdatableFormat<ItemCallback<T>> {
 
-    @NonNull private final List<ItemStack> items;
-    @Nullable private final ItemCallback<T> callBack;
+    private final ItemCallback<T> callback;
 
-    private final Set<Integer> slots = new HashSet<>();
+    private final List<SimpleItemFormat<T>> items = new ArrayList<>();
+    private final Map<Integer, SimpleItemFormat<T>> slots = new HashMap<>();
+
+    public PaginatedItemFormat(@NonNull List<ItemStack> items, @Nullable ItemCallback<T> callBack) {
+        this.callback = callBack;
+        this.items.addAll(items.stream()
+                .map(item -> new SimpleItemFormat<>(-1, item, callBack))
+                .collect(Collectors.toList()));
+    }
 
     @Override
     public boolean isValid(int slot) {
-        return slots.contains(slot);
+        return slots.containsKey(slot);
     }
 
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
-        if (this.callBack != null) {
-            this.callBack.accept(new ItemClickEvent<>(event, event.getCurrentItem(), builder.getProperties()));
+        SimpleItemFormat<T> format = slots.get(event.getRawSlot());
+        if (format != null && format.getCallBack() != null) {
+            format.accept(event, builder);
         }
     }
 
@@ -56,16 +63,35 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
         int size = builder.getPageSize();
         int page = builder.getCurrentPage();
 
-        List<ItemStack> values = size <= 0 ? items : ListUtil.getSublist(items, page, size);
+        List<SimpleItemFormat<T>> values = size <= 0 ? items : ListUtil.getSublist(items, page, size);
         for(int index = 0; index < values.size() && slot < exit; slot++) {
+            SimpleItemFormat<T> format = values.get(index);
+            if (format.getSlot() >= 0) {
+                inventory.setItem(slot, format.getItemStack());
+                continue;
+            }
 
             if(skipFunction != null && skipFunction.apply(slot)) continue;
 
-            ItemStack item = values.get(index);
+            ItemStack item = format.getItemStack();
             inventory.setItem(slot, item);
 
-            slots.add(slot);
+            slots.put(slot, format);
             index++;
         }
     }
+
+    @Override
+    public void update(int slot, ItemStack itemStack, ItemCallback<T> callback) {
+        SimpleItemFormat<T> format = slots.get(slot);
+        if (format != null) {
+            format.update(slot, itemStack, callback);
+        }
+    }
+
+    @Override
+    public void flush(@NotNull Inventory inventory) {
+        slots.values().forEach(format -> format.flush(inventory));
+    }
+
 }

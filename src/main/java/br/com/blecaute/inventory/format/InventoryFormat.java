@@ -36,5 +36,4 @@ public interface InventoryFormat<T extends InventoryItem> {
      * @param builder The @{@link InventoryBuilder}
      */
     void format(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder);
-
 }
