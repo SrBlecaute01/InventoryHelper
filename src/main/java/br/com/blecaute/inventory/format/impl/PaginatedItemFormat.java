@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -67,5 +68,19 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
             slots.add(slot);
             index++;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PaginatedItemFormat)) return false;
+
+        PaginatedItemFormat<?> that = (PaginatedItemFormat<?>) o;
+        return getItems().equals(that.getItems());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getItems());
     }
 }

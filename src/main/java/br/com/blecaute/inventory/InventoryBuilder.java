@@ -50,7 +50,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
     private InventoryProperty properties = new InventoryProperty();
     private Map<ButtonType, Pair<Integer, ItemStack>> buttons = new EnumMap<>(ButtonType.class);
-    private List<InventoryFormat<T>> formats = new LinkedList<>();
+    private Set<InventoryFormat<T>> formats = new LinkedHashSet<>();
 
     /**
      * Create instance of @{@link InventoryBuilder}
@@ -136,7 +136,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
 
         if (slot > 0) {
-            formats.add(new SimpleItemFormat<>(slot, itemStack, callBack));
+            addFormat(new SimpleItemFormat<>(slot, itemStack, callBack));
         }
 
         return this;
@@ -173,7 +173,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @return This @{@link InventoryBuilder}
      */
     public InventoryBuilder<T> withItems(@NotNull List<ItemStack> items, @Nullable ItemCallback<T> callBack) {
-        formats.add(new PaginatedItemFormat<>(items, callBack));
+        addFormat(new PaginatedItemFormat<>(items, callBack));
         return this;
     }
 
@@ -189,7 +189,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     public InventoryBuilder<T> withObject(int slot, @NotNull T value, @Nullable ObjectCallback<T> callBack) {
 
         if (slot > 0) {
-            formats.add(new SimpleObjectFormat<>(slot, value, callBack));
+            addFormat(new SimpleObjectFormat<>(slot, value, callBack));
         }
 
         return this;
@@ -226,7 +226,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @return This @{@link InventoryBuilder}
      */
     public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable ObjectCallback<T> callBack) {
-        formats.add(new PaginatedObjectFormat<>(objects, callBack));
+        addFormat(new PaginatedObjectFormat<>(objects, callBack));
         return this;
     }
 
@@ -281,7 +281,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
             clone.inventory = clone.createInventory(this.inventory.getSize());
             clone.properties = this.properties.clone();
             clone.buttons = new EnumMap<>(this.buttons);
-            clone.formats = new LinkedList<>(this.formats);
+            clone.formats = new LinkedHashSet<>(this.formats);
 
             return clone;
 
@@ -343,6 +343,13 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         }
 
         return this.inventory;
+    }
+
+    private void addFormat(InventoryFormat<T> format) {
+        if (!this.formats.add(format)) {
+            this.formats.remove(format);
+            this.formats.add(format);
+        }
     }
 
     private void updateInventory() {
