@@ -8,4 +8,13 @@ import br.com.blecaute.inventory.type.InventoryItem;
  *
  * @param <T> The type of @{@link InventoryItem}
  */
-public interface ItemCallback<T extends InventoryItem> extends InventoryCallback<T, ItemClickEvent<T>> {}
+public interface ItemCallback<T extends InventoryItem> extends InventoryCallback<T, ItemClickEvent<T>> {
+
+    ItemCallback<? extends InventoryItem> EMPTY = click -> {};
+
+    @SuppressWarnings("unchecked cast")
+    static <T extends InventoryItem> ItemCallback<T> getEmpty() {
+        return (ItemCallback<T>) EMPTY;
+    }
+
+}

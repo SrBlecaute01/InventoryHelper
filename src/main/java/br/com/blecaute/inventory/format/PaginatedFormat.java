@@ -30,9 +30,6 @@ public interface PaginatedFormat<T extends InventoryItem> extends InventoryForma
                 @NotNull InventoryBuilder<T> builder,
                 @Nullable Function<Integer, Boolean> skipFunction);
 
-    /**
-     * Override the default method for writing the paging method.
-     */
     @Override
-    default void format(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) { }
+    default void format(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) {}
 }

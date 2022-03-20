@@ -28,7 +28,6 @@ public class SimpleInventoryExample extends JavaPlugin implements Listener {
                 .withItem(13, getItem(), click -> {
                     player.closeInventory();
                     player.sendMessage("§eYou clicked in item ;).");
-
                 }).build(player);
     }
 
