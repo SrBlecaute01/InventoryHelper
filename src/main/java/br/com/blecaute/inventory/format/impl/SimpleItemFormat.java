@@ -20,7 +20,6 @@ import java.util.Objects;
 public class SimpleItemFormat<T extends InventoryItem> implements InventoryFormat<T>, UpdatableFormat<ItemCallback<T>> {
 
     private int slot;
-
     @Nullable private ItemStack itemStack;
     @Nullable private ItemCallback<T> callBack;
 
