@@ -4,23 +4,35 @@ import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.event.ObjectClickEvent;
 import br.com.blecaute.inventory.format.InventoryFormat;
+import br.com.blecaute.inventory.format.UpdatableFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-@Data
-public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFormat<T> {
+@Getter
+public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFormat<T>, UpdatableFormat<ObjectCallback<T>> {
 
-    private final int slot;
+    private int slot;
 
-    @NonNull private final T object;
-    @Nullable private final ObjectCallback<T> callBack;
+    @NonNull private T object;
+
+    @Nullable private ObjectCallback<T> callBack;
+    @Nullable private ItemStack itemStack;
+
+    private boolean flush = false;
+
+    public SimpleObjectFormat(int slot, @NonNull T object, @Nullable ObjectCallback<T> callBack) {
+        this.slot = slot;
+        this.object = object;
+        this.callBack = callBack;
+    }
 
     @Override
     public boolean isValid(int slot) {
@@ -36,7 +48,23 @@ public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFor
 
     @Override
     public void format(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) {
-        inventory.setItem(slot, object.getItem(inventory, builder.getProperties()));
+        inventory.setItem(slot, this.itemStack == null ? object.getItem(inventory, builder.getProperties()) : this.itemStack);
+    }
+
+    @Override
+    public void update(int slot, @Nullable ItemStack itemStack, @Nullable ObjectCallback<T> callback) {
+        this.slot = slot;
+        this.itemStack = itemStack;
+        this.callBack = callback == null ? this.callBack : callback;
+        this.flush = false;
+    }
+
+    @Override
+    public void flush(@NotNull Inventory inventory) {
+        if (flush && slot >= 0) {
+            inventory.setItem(slot, itemStack);
+            flush = false;
+        }
     }
 
     @Override
@@ -60,4 +88,5 @@ public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFor
     public int hashCode() {
         return Objects.hash(getSlot());
     }
+
 }

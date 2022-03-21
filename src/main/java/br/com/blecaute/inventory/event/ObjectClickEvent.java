@@ -3,6 +3,7 @@ package br.com.blecaute.inventory.event;
 import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
+import lombok.Getter;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,8 +12,17 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <T> The type of @{@link InventoryItem}
  */
-public class ObjectClickEvent<T extends InventoryItem> extends ItemClickEvent<T> {
+public class ObjectClickEvent<T extends InventoryItem> extends InventoryEvent<T> {
 
+    /**
+     * The @{@link InventoryFormat}
+     */
+    private final InventoryFormat<T> format;
+
+    /**
+     * The object
+     */
+    @Getter @NotNull
     private final T object;
 
     public ObjectClickEvent(@NotNull InventoryFormat<T> format,
@@ -20,19 +30,10 @@ public class ObjectClickEvent<T extends InventoryItem> extends ItemClickEvent<T>
                             @NotNull InventoryClickEvent event,
                             @NotNull T object) {
 
-        super(format, builder, event);
+        super(builder, event);
+        this.format = format;
         this.object = object;
     }
 
-    /**
-     * Get the object
-     *
-     * @return The object of @{@link InventoryItem}
-     */
-    @Override
-    @SuppressWarnings("deprecation")
-    @NotNull
-    public T getObject() {
-        return object;
-    }
+
 }

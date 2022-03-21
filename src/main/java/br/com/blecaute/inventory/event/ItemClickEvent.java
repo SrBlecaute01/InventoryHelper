@@ -4,7 +4,7 @@ import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.format.UpdatableFormat;
-import br.com.blecaute.inventory.format.updater.SimpleItemUpdater;
+import br.com.blecaute.inventory.updater.SimpleItemUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -24,7 +24,7 @@ public class ItemClickEvent<T extends InventoryItem> extends InventoryEvent<T> i
                           @NotNull InventoryBuilder<T> builder,
                           @NotNull InventoryClickEvent event) {
 
-        super(builder, event, null);
+        super(builder, event);
         this.format = format;
     }
 
