@@ -10,10 +10,10 @@ import br.com.blecaute.inventory.type.InventoryItem;
  */
 public interface ItemCallback<T extends InventoryItem> extends InventoryCallback<T, ItemClickEvent<T>> {
 
-    ItemCallback<? extends InventoryItem> EMPTY = click -> {};
+    ItemCallback<?> EMPTY = click -> {};
 
     @SuppressWarnings("unchecked cast")
-    static <T extends InventoryItem> ItemCallback<T> getEmpty() {
+    static <T extends InventoryItem> ItemCallback<T> empty() {
         return (ItemCallback<T>) EMPTY;
     }
 
