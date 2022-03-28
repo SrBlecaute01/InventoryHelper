@@ -3,8 +3,7 @@ package br.com.blecaute.inventory.event;
 import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.format.InventoryFormat;
-import br.com.blecaute.inventory.format.UpdatableFormat;
-import br.com.blecaute.inventory.updater.SimpleItemUpdater;
+import br.com.blecaute.inventory.format.updater.ItemUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <T> The type of @{@link InventoryItem}
  */
-public class ItemClickEvent<T extends InventoryItem> extends InventoryEvent<T> implements SimpleItemUpdater<T> {
+public class ItemClickEvent<T extends InventoryItem> extends InventoryEvent<T> implements UpdatableItem<T> {
 
     private final InventoryFormat<T> format;
 
@@ -45,22 +44,10 @@ public class ItemClickEvent<T extends InventoryItem> extends InventoryEvent<T> i
 
     @Override @SuppressWarnings("unchecked")
     public void update(int slot, @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callback) {
-        if (!(format instanceof UpdatableFormat)) {
-            throw new UnsupportedOperationException("The format is not an instance of UpdatableFormat");
+        if (!(format instanceof ItemUpdater)) {
+            throw new UnsupportedOperationException("The format is not an instance of ItemUpdater");
         }
 
-        UpdatableFormat<ItemCallback<T>> value = (UpdatableFormat<ItemCallback<T>>) format;
-        value.update(slot, itemStack, callback);
+        ((ItemUpdater<T>) format).update(getBuilder(), getInventory(), slot, itemStack, callback);
     }
-
-    @Override @SuppressWarnings("unchecked")
-    public void flush() {
-        if (!(format instanceof UpdatableFormat)) {
-            throw new UnsupportedOperationException("The format is not an instance of UpdatableFormat");
-        }
-
-        UpdatableFormat<ItemCallback<T>> value = (UpdatableFormat<ItemCallback<T>>) format;
-        value.flush(getInventory());
-    }
-
 }
