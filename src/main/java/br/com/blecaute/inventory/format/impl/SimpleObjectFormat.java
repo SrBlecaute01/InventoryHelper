@@ -1,13 +1,16 @@
 package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
+import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.event.ObjectClickEvent;
-import br.com.blecaute.inventory.format.InventoryFormat;
-import br.com.blecaute.inventory.format.UpdatableFormat;
+import br.com.blecaute.inventory.format.SimpleFormat;
+import br.com.blecaute.inventory.format.updater.ItemUpdater;
+import br.com.blecaute.inventory.format.updater.ObjectUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NonNull;
+import lombok.Setter;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -16,27 +19,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-@Getter
-public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFormat<T>, UpdatableFormat<ObjectCallback<T>> {
+@Getter @AllArgsConstructor
+public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat<T>, ItemUpdater<T>, ObjectUpdater<T> {
 
     private int slot;
 
-    @NonNull private T object;
+    @Setter @Nullable
+    private ItemStack icon;
 
+    @Nullable private T object;
     @Nullable private ObjectCallback<T> callBack;
-    @Nullable private ItemStack itemStack;
 
-    private boolean flush = false;
-
-    public SimpleObjectFormat(int slot, @NonNull T object, @Nullable ObjectCallback<T> callBack) {
+    public SimpleObjectFormat(int slot, @Nullable T object, @Nullable ObjectCallback<T> callBack) {
         this.slot = slot;
         this.object = object;
         this.callBack = callBack;
-    }
-
-    @Override
-    public boolean isValid(int slot) {
-        return this.slot == slot;
     }
 
     @Override
@@ -47,24 +44,39 @@ public class SimpleObjectFormat<T extends InventoryItem> implements InventoryFor
     }
 
     @Override
-    public void format(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) {
-        inventory.setItem(slot, this.itemStack == null ? object.getItem(inventory, builder.getProperties()) : this.itemStack);
-    }
-
-    @Override
-    public void update(int slot, @Nullable ItemStack itemStack, @Nullable ObjectCallback<T> callback) {
-        this.slot = slot;
-        this.itemStack = itemStack;
-        this.callBack = callback == null ? this.callBack : callback;
-        this.flush = false;
-    }
-
-    @Override
-    public void flush(@NotNull Inventory inventory) {
-        if (flush && slot >= 0) {
-            inventory.setItem(slot, itemStack);
-            flush = false;
+    public ItemStack getItemStack(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) {
+        if (this.icon != null) {
+            return this.icon;
         }
+
+        return this.object == null ? null : this.object.getItem(inventory, builder.getProperties());
+    }
+
+    @Override
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory) {
+        format(inventory, builder);
+    }
+
+    @Override
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
+                       @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callback) {
+
+        this.callBack = callback == null ? this.callBack : callback::accept;
+        this.icon = itemStack;
+        this.slot = slot;
+
+        format(inventory, builder);
+    }
+
+    @Override
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
+                       @NotNull T object, @Nullable ObjectCallback<T> callback) {
+
+        this.slot = slot;
+        this.object = object;
+        this.callBack = callback == null ? this.callBack : callback;
+
+        format(inventory, builder);
     }
 
     @Override

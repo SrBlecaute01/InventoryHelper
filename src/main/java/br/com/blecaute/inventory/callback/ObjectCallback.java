@@ -8,4 +8,4 @@ import br.com.blecaute.inventory.type.InventoryItem;
  *
  * @param <T> The type of @{@link InventoryItem}
  */
-public interface ObjectCallback<T extends InventoryItem> extends InventoryCallback<T, ObjectClickEvent<T>> { }
+public interface ObjectCallback<T extends InventoryItem> extends InventoryCallback<T, ObjectClickEvent<T>> {}

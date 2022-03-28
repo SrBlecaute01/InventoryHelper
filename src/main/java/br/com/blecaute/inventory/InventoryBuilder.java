@@ -173,7 +173,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @return This @{@link InventoryBuilder}
      */
     public InventoryBuilder<T> withItems(@NotNull List<ItemStack> items, @Nullable ItemCallback<T> callBack) {
-        addFormat(new PaginatedItemFormat<>(items, callBack));
+        addFormat(new PaginatedItemFormat<>(items, skipFunction, callBack));
         return this;
     }
 
@@ -226,7 +226,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @return This @{@link InventoryBuilder}
      */
     public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable ObjectCallback<T> callBack) {
-        addFormat(new PaginatedObjectFormat<>(objects, callBack));
+        addFormat(new PaginatedObjectFormat<>(objects, skipFunction, callBack));
         return this;
     }
 
@@ -290,6 +290,11 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         }
     }
 
+    public InventoryBuilder<T> withFormat(@NotNull InventoryFormat<T> format) {
+        addFormat(format);
+        return this;
+    }
+
     /**
      * Format @{@link Inventory}
      * @return This @{@link InventoryBuilder}
@@ -301,9 +306,9 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
             if (format instanceof PaginatedFormat) {
                 PaginatedFormat<T> paginated = (PaginatedFormat<T>) format;
-                paginated.format(inventory, this, skipFunction);
-                createPages(paginated.getSize());
+                paginated.format(inventory, this);
 
+                createPages(paginated.getSize());
                 continue;
             }
 
@@ -367,7 +372,10 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
             inventory.setItem(pair.getKey(), pair.getValue());
         }
 
-        if(this.currentPage > 0 && buttons.containsKey(ButtonType.NEXT_PAGE) && size > this.currentPage * this.pageSize) {
+        if(this.currentPage > 0 && this.pageSize > 0 &&
+                buttons.containsKey(ButtonType.NEXT_PAGE) &&
+                size > this.currentPage * this.pageSize) {
+
             Pair<Integer, ItemStack> pair = buttons.get(ButtonType.NEXT_PAGE);
             inventory.setItem(pair.getKey(), pair.getValue());
         }

@@ -1,11 +1,11 @@
-package br.com.blecaute.inventory.updater;
+package br.com.blecaute.inventory.event;
 
 import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.type.InventoryItem;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public interface SimpleItemUpdater<T extends InventoryItem> extends InventoryUpdater {
+public interface UpdatableItem<T extends InventoryItem> extends Updatable {
 
     void update(@Nullable ItemStack itemStack);
 
