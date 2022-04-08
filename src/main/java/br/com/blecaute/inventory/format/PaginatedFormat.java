@@ -35,7 +35,7 @@ public interface PaginatedFormat<T extends InventoryItem> extends InventoryForma
     default <S extends InventoryFormat<T>> void calculate(int size, List<S> items, Map<Integer, List<S>> map) {
         if (map.size() > 0) return;
         if (size <= 0) {
-            map.put(0, items);
+            map.put(1, items);
             return;
         }
 
