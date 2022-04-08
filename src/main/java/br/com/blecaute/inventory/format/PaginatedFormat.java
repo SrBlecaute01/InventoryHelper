@@ -39,7 +39,7 @@ public interface PaginatedFormat<T extends InventoryItem> extends InventoryForma
             return;
         }
 
-        for (int page = 0; items.size() > page * size; page++) {
+        for (int page = 1; items.size() > page * size; page++) {
             map.put(page, ListUtil.getSublist(items, page, size));
         }
     }

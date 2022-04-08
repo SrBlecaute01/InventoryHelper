@@ -72,7 +72,7 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
         int exit = builder.getExitSlot();
         int page = builder.getCurrentPage();
 
-        List<SimpleItemFormat<T>> values = this.pages.getOrDefault(page - 1, Collections.emptyList());
+        List<SimpleItemFormat<T>> values = this.pages.getOrDefault(page, Collections.emptyList());
         for(int index = 0; index < values.size() && slot < exit; slot++) {
             SimpleItemFormat<T> format = values.get(index);
             if (format.getSlot() >= 0) {
