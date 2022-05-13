@@ -1,43 +1,40 @@
 package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
-import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.callback.ObjectCallback;
-import br.com.blecaute.inventory.event.ItemClickEvent;
+import br.com.blecaute.inventory.event.ObjectClickEvent;
 import br.com.blecaute.inventory.format.PaginatedFormat;
-import br.com.blecaute.inventory.format.updater.ItemUpdater;
 import br.com.blecaute.inventory.format.updater.ObjectUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.type.InventorySlot;
-import lombok.NonNull;
+import br.com.blecaute.inventory.validator.SlotValidator;
+import org.apache.commons.lang.Validate;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-public class PaginatedObjectFormat<T extends InventoryItem> implements PaginatedFormat<T>, ItemUpdater<T>, ObjectUpdater<T> {
+public class PaginatedObjectFormat<T extends InventoryItem> implements PaginatedFormat<T>, ObjectUpdater<T> {
 
-    private ObjectCallback<T> callback;
+    private final ObjectCallback<T> callback;
 
-    private final Function<Integer, Boolean> function;
+    private final SlotValidator validator;
 
     private final List<SimpleObjectFormat<T>> items = new ArrayList<>();
     private final Map<Integer, SimpleObjectFormat<T>> slots = new HashMap<>();
     private final Map<Integer, List<SimpleObjectFormat<T>>> pages = new HashMap<>();
 
-    public PaginatedObjectFormat(@NonNull List<T> items, Function<Integer, Boolean> function,
-                                 @Nullable ObjectCallback<T> callback) {
+    public PaginatedObjectFormat(@NotNull List<T> items, @Nullable SlotValidator validator, @Nullable ObjectCallback<T> callback) {
+        Validate.notNull(items, "items cannot be null");
 
         this.callback = callback;
-        this.function = function;
-        this.items.addAll(items.stream()
-                .map(value -> new SimpleObjectFormat<>(-1, value, callback))
-                .collect(Collectors.toList()));
+        this.validator = validator;
+
+        for (T item : items) {
+            this.items.add(new SimpleObjectFormat<>(-1, item, null));
+        }
     }
 
     @Override
@@ -47,9 +44,19 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
 
     @Override
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
+        Validate.notNull(event, "event cannot be null");
+        Validate.notNull(builder, "builder cannot be null");
+
         SimpleObjectFormat<T> format = slots.get(event.getRawSlot());
-        if (format != null) {
-            format.accept(event, builder);
+        if (format == null) return;
+
+        ObjectCallback<T> callback = format.getCallBack();
+        if (callback == null) {
+            callback = this.callback;
+        }
+
+        if (callback != null) {
+            callback.accept(new ObjectClickEvent<>(this, builder, event, format.getObject()));
         }
     }
 
@@ -65,6 +72,9 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
 
     @Override
     public void format(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) {
+        Validate.notNull(inventory, "inventory cannot be null");
+        Validate.notNull(builder, "builder cannot be null");
+
         slots.clear();
 
         calculate(builder.getPageSize(), this.items, this.pages);
@@ -97,14 +107,13 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
                 continue;
             }
 
-            if(function != null && function.apply(slot)) continue;
+            if(validator != null && validator.validate(slot)) continue;
 
             inventory.setItem(slot, format.getItemStack(inventory, builder));
             slots.put(slot, format);
 
             index++;
         }
-
     }
 
     @Override
@@ -113,69 +122,37 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
     }
 
     @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
-                       @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callback) {
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,  @NotNull T object, int slot) {
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(inventory, "inventory cannot be null");
+        Validate.notNull(object, "object cannot be null");
 
         SimpleObjectFormat<T> format = slots.get(slot);
         if (format != null) {
-            format.update(builder, inventory, -1, itemStack, callback);
+            inventory.setItem(slot, format.getItemStack(inventory, builder));
             return;
         }
 
-        format = new SimpleObjectFormat<>(slot, itemStack, null, callback == null ? this.callback : callback::accept);
-        format.format(inventory, builder);
-
         List<SimpleObjectFormat<T>> formats = pages.get(builder.getCurrentPage());
         if (formats != null) {
+            format = new SimpleObjectFormat<>(slot, object, null);
             formats.add(format);
+
+            inventory.setItem(slot, format.getItemStack(inventory, builder));
+            slots.put(slot, format);
         }
-
-        slots.put(slot, format);
     }
 
     @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
-                       @NotNull List<ItemStack> items, @Nullable ItemCallback<T> callback) {
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                       @NotNull ObjectCallback<T> callback, @NotNull T object, int slot) {
 
-        this.callback = callback == null ? this.callback : callback::accept;
-        this.pages.put(builder.getCurrentPage(), items.stream()
-                .map(item -> new SimpleObjectFormat<>(-1, item,null, this.callback))
-                .collect(Collectors.toList()));
-
-        format(inventory, builder);
-    }
-
-    @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
-                       @NotNull List<T> objects, @Nullable ObjectCallback<T> callback) {
-
-        this.callback = callback == null ? this.callback : callback;
-        this.pages.put(builder.getCurrentPage(), objects.stream()
-                .map(item -> new SimpleObjectFormat<>(-1, item, this.callback))
-                .collect(Collectors.toList()));
-
-        format(inventory, builder);
-    }
-
-    @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
-                       @NotNull T object, @Nullable ObjectCallback<T> callback) {
+        update(builder, inventory, object, slot);
 
         SimpleObjectFormat<T> format = slots.get(slot);
         if (format != null) {
-            format.update(builder, inventory, -1, object, callback);
-            return;
+            format.setCallBack(callback);
         }
-
-        format = new SimpleObjectFormat<>(slot, object, callback == null ? this.callback : callback);
-        format.format(inventory, builder);
-
-        List<SimpleObjectFormat<T>> formats = pages.get(builder.getCurrentPage());
-        if (formats != null) {
-            formats.add(format);
-        }
-
-        slots.put(slot, format);
     }
 
     @Override

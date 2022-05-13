@@ -2,6 +2,7 @@ package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ItemCallback;
+import br.com.blecaute.inventory.event.ItemClickEvent;
 import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.format.updater.ItemUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
@@ -46,7 +47,7 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
     public void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder) {
         SimpleItemFormat<T> format = slots.get(event.getRawSlot());
         if (format != null && format.getCallBack() != null) {
-            format.accept(event, builder);
+            format.getCallBack().accept(new ItemClickEvent<>(this, builder, event));
         }
     }
 

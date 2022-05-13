@@ -5,11 +5,10 @@ import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.event.ObjectClickEvent;
 import br.com.blecaute.inventory.format.SimpleFormat;
-import br.com.blecaute.inventory.format.updater.ItemUpdater;
 import br.com.blecaute.inventory.format.updater.ObjectUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.Setter;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -19,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-@Getter @AllArgsConstructor
-public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat<T>, ItemUpdater<T>, ObjectUpdater<T> {
+@Data @AllArgsConstructor
+public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat<T>, ObjectUpdater<T> {
 
     private int slot;
 
