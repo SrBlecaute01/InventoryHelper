@@ -16,30 +16,58 @@ import org.jetbrains.annotations.NotNull;
 @Data
 public abstract class InventoryEvent<T extends InventoryItem> {
 
+    /**
+     * The @{@link InventoryBuilder}
+     */
     @NotNull private final InventoryBuilder<T> builder;
 
     /**
-     * The click event
+     * The @{@link InventoryClickEvent}
      */
     @NotNull private final InventoryClickEvent event;
 
+    /**
+     * Get index of clicked slot
+     *
+     * @return index of clicked slot
+     */
     public int getSlot() {
         return event.getRawSlot();
     }
 
-    public Player getPlayer() {
+    /**
+     * Get player who clicked
+     *
+     * @return The @{@link Player}
+     */
+    public @NotNull Player getPlayer() {
         return (Player) event.getWhoClicked();
     }
 
-    public Inventory getInventory() {
+    /**
+     * Get clicked @{@link Inventory}
+     *
+     * @return The @{@link Inventory}
+     */
+    public @NotNull Inventory getInventory() {
         return event.getInventory();
     }
 
-    public ItemStack getItemStack() {
+    /**
+     * Get clicked @{@link ItemStack}
+     *
+     * @return The @{@link ItemStack}
+     */
+    public @NotNull ItemStack getItemStack() {
         return event.getCurrentItem();
     }
 
-    public InventoryProperty getProperties() {
+    /**
+     * Get the properties of @{@link Inventory}
+     *
+     * @return The @{@link InventoryProperty}
+     */
+    public @NotNull InventoryProperty getProperties() {
         return builder.getProperties();
     }
 

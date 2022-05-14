@@ -13,7 +13,7 @@ public interface InventorySlot extends InventoryItem {
     /**
      * The slot
      *
-     * @return The number of slot;
+     * @return The index of slot;
      */
     int getSlot();
 

@@ -15,6 +15,7 @@ import java.util.Objects;
 
 /**
  * The event called when the player clicks on an object.
+ *
  * @param <T> The type of @{@link InventoryItem}
  */
 public class ObjectClickEvent<T extends InventoryItem> extends ItemClickEvent<T> implements UpdatableObject<T> {
