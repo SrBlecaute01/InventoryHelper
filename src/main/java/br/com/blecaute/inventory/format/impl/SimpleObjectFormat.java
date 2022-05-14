@@ -9,7 +9,7 @@ import br.com.blecaute.inventory.format.updater.ObjectUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -53,9 +53,8 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
                        @NotNull ItemStack itemStack, int slot) {
 
-        Validate.notNull(builder, "builder cannot be null");
-        Validate.notNull(inventory, "inventory cannot be null");
         Validate.notNull(itemStack, "itemStack cannot be null");
+        validate(builder, inventory, slot);
 
         if (this.slot == slot) {
             this.icon = itemStack;
@@ -74,9 +73,8 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
                        @Nullable ItemCallback<T> callback, @NotNull ItemStack itemStack, int slot) {
 
-        Validate.notNull(builder, "builder cannot be null");
-        Validate.notNull(inventory, "inventory cannot be null");
         Validate.notNull(itemStack, "itemStack cannot be null");
+        validate(builder, inventory, slot);
 
         if (this.slot == slot) {
             this.icon = itemStack;
@@ -104,9 +102,8 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
                        @NotNull T object, int slot) {
 
-        Validate.notNull(builder, "builder cannot be null");
-        Validate.notNull(inventory, "inventory cannot be null");
         Validate.notNull(object, "object cannot be null");
+        validate(builder, inventory, slot);
 
         if (this.slot == slot) {
             this.object = object;
@@ -126,9 +123,8 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
                        @Nullable ObjectCallback<T> callback, @NotNull T object, int slot) {
 
-        Validate.notNull(builder, "builder cannot be null");
-        Validate.notNull(inventory, "inventory cannot be null");
         Validate.notNull(object, "object cannot be null");
+        validate(builder, inventory, slot);
 
         if (this.slot == slot) {
             this.object = object;
@@ -143,6 +139,15 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
         format.format(inventory, builder);
 
         builder.addFormat(format);
+    }
+
+    private void validate(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot) {
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(inventory, "inventory cannot be null");
+        Validate.isTrue(
+                slot >= 0 && slot < inventory.getSize(),
+                "slot must be between 0 and " + inventory.getSize()
+        );
     }
 
     @Override

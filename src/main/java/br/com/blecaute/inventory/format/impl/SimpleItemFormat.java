@@ -45,9 +45,7 @@ public class SimpleItemFormat<T extends InventoryItem> implements SimpleFormat<T
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
                        @NotNull ItemStack itemStack, int slot) {
 
-        Validate.notNull(builder, "builder cannot be null");
-        Validate.notNull(inventory, "inventory cannot be null");
-        Validate.notNull(itemStack, "itemStack cannot be null");
+        validate(builder, inventory, itemStack, slot);
 
         if (this.slot == slot) {
             this.itemStack = itemStack;
@@ -66,9 +64,7 @@ public class SimpleItemFormat<T extends InventoryItem> implements SimpleFormat<T
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
                        @Nullable ItemCallback<T> callback, @NotNull ItemStack itemStack, int slot) {
 
-        Validate.notNull(builder, "builder cannot be null");
-        Validate.notNull(inventory, "inventory cannot be null");
-        Validate.notNull(itemStack, "itemStack cannot be null");
+        validate(builder, inventory, itemStack, slot);
 
         if (this.slot == slot) {
             this.itemStack = itemStack;
@@ -82,6 +78,18 @@ public class SimpleItemFormat<T extends InventoryItem> implements SimpleFormat<T
         format.format(inventory, builder);
 
         builder.addFormat(format);
+    }
+
+    private void validate(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                          @NotNull ItemStack itemStack, int slot) {
+
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(inventory, "inventory cannot be null");
+        Validate.notNull(itemStack, "itemStack cannot be null");
+        Validate.isTrue(
+                slot >= 0 && slot < inventory.getSize(),
+                "slot must be between 0 and " + inventory.getSize()
+        );
     }
 
     @Override
