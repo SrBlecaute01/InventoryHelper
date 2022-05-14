@@ -8,14 +8,12 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 public interface ItemUpdater<T extends InventoryItem> {
 
-    default void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
-                        @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callback) {}
+    void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                @NotNull ItemStack itemStack, int slot);
 
-    default void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
-                        @NotNull List<ItemStack> items, @Nullable ItemCallback<T> callback) {}
+    void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                @Nullable ItemCallback<T> callback, @NotNull ItemStack itemStack, int slot);
 
 }

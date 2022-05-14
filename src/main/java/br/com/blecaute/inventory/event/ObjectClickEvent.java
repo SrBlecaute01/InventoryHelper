@@ -2,6 +2,7 @@ package br.com.blecaute.inventory.event;
 
 import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ObjectCallback;
+import br.com.blecaute.inventory.event.updatable.UpdatableObject;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.format.updater.ObjectUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
@@ -37,36 +38,37 @@ public class ObjectClickEvent<T extends InventoryItem> extends ItemClickEvent<T>
     }
 
     @Override
-    public void update(int slot, ItemStack itemStack) {
-        update(slot, itemStack, null);
+    public void update(int slot, @NotNull ItemStack itemStack) {
+        getUpdater().update(getBuilder(), getInventory(), itemStack, slot);
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
     public void update() {
-        if (!(format instanceof ObjectUpdater)) {
-            throw new UnsupportedOperationException("The format is not an instance of ObjectUpdater");
-        }
-
-        ((ObjectUpdater<T>) format).update(getBuilder(), getInventory());
+        getUpdater().update(getBuilder(), getInventory());
     }
 
     @Override
     public void update(@NotNull T object) {
-        update(object, null);
+        getUpdater().update(getBuilder(), getInventory(), object, getSlot());
     }
 
     @Override
     public void update(@NotNull T object, @Nullable ObjectCallback<T> callback) {
-        update(getEvent().getRawSlot(), object, callback);
+        getUpdater().update(getBuilder(), getInventory(), callback, object, getSlot());
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
     public void update(int slot, @NotNull T object, @Nullable ObjectCallback<T> callback) {
+        getUpdater().update(getBuilder(), getInventory(), callback, object, slot);
+    }
+
+    @SuppressWarnings("unchecked")
+    private ObjectUpdater<T> getUpdater() {
         if (!(format instanceof ObjectUpdater)) {
             throw new UnsupportedOperationException("The format is not an instance of ObjectUpdater");
         }
 
-        ((ObjectUpdater<T>) format).update(getBuilder(), getInventory(), slot, object, callback);
+        return (ObjectUpdater<T>) format;
     }
 
 }

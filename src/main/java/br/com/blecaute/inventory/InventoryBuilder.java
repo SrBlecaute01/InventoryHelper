@@ -173,7 +173,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @return This @{@link InventoryBuilder}
      */
     public InventoryBuilder<T> withItems(@NotNull List<ItemStack> items, @Nullable ItemCallback<T> callBack) {
-        addFormat(new PaginatedItemFormat<>(items, skipFunction, callBack));
+        addFormat(new PaginatedItemFormat<>(items, skipFunction::apply, callBack));
         return this;
     }
 
@@ -349,7 +349,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         return this.inventory;
     }
 
-    private void addFormat(InventoryFormat<T> format) {
+    public void addFormat(InventoryFormat<T> format) {
         if (!this.formats.add(format)) {
             this.formats.remove(format);
             this.formats.add(format);

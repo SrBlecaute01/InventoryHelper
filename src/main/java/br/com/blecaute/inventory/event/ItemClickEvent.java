@@ -2,6 +2,7 @@ package br.com.blecaute.inventory.event;
 
 import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ItemCallback;
+import br.com.blecaute.inventory.event.updatable.UpdatableItem;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.format.updater.ItemUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
@@ -28,26 +29,32 @@ public class ItemClickEvent<T extends InventoryItem> extends InventoryEvent<T> i
     }
 
     @Override
-    public void update(int slot, @Nullable ItemStack itemStack) {
-        update(slot, itemStack, null);
+    public void update(int slot, @NotNull ItemStack itemStack) {
+        getUpdater().update(getBuilder(), getInventory(), itemStack, slot);
     }
 
     @Override
-    public void update(@Nullable ItemStack itemStack) {
-        update(itemStack, null);
+    public void update(@NotNull ItemStack itemStack) {
+        getUpdater().update(getBuilder(), getInventory(), itemStack, getSlot());
     }
 
     @Override
-    public void update(@Nullable ItemStack itemStack, @Nullable ItemCallback<T> callback) {
-        update(getEvent().getRawSlot(), itemStack, callback);
+    public void update(@NotNull ItemStack itemStack, @Nullable ItemCallback<T> callback) {
+        getUpdater().update(getBuilder(), getInventory(), callback, itemStack, getSlot());
     }
 
-    @Override @SuppressWarnings("unchecked")
-    public void update(int slot, @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callback) {
+    @Override
+    public void update(int slot, @NotNull ItemStack itemStack, @Nullable ItemCallback<T> callback) {
+        getUpdater().update(getBuilder(), getInventory(), callback, itemStack, slot);
+    }
+
+    @SuppressWarnings("unchecked")
+    private ItemUpdater<T> getUpdater() {
         if (!(format instanceof ItemUpdater)) {
             throw new UnsupportedOperationException("The format is not an instance of ItemUpdater");
         }
 
-        ((ItemUpdater<T>) format).update(getBuilder(), getInventory(), slot, itemStack, callback);
+        return (ItemUpdater<T>) format;
     }
+
 }

@@ -9,7 +9,7 @@ import br.com.blecaute.inventory.format.updater.ObjectUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Setter;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -22,12 +22,10 @@ import java.util.Objects;
 public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat<T>, ObjectUpdater<T> {
 
     private int slot;
-
-    @Setter @Nullable
     private ItemStack icon;
 
-    @Nullable private T object;
-    @Nullable private ObjectCallback<T> callBack;
+    private T object;
+    private ObjectCallback<T> callBack;
 
     public SimpleObjectFormat(int slot, @Nullable T object, @Nullable ObjectCallback<T> callBack) {
         this.slot = slot;
@@ -52,30 +50,99 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
     }
 
     @Override
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                       @NotNull ItemStack itemStack, int slot) {
+
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(inventory, "inventory cannot be null");
+        Validate.notNull(itemStack, "itemStack cannot be null");
+
+        if (this.slot == slot) {
+            this.icon = itemStack;
+
+            format(inventory, builder);
+            return;
+        }
+
+        SimpleItemFormat<T> format = new SimpleItemFormat<>(slot, itemStack, null);
+        format.format(inventory, builder);
+
+        builder.addFormat(format);
+    }
+
+    @Override
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                       @Nullable ItemCallback<T> callback, @NotNull ItemStack itemStack, int slot) {
+
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(inventory, "inventory cannot be null");
+        Validate.notNull(itemStack, "itemStack cannot be null");
+
+        if (this.slot == slot) {
+            this.icon = itemStack;
+            this.callBack = callback != null ? callback::accept : null;
+
+            format(inventory, builder);
+            return;
+        }
+
+        SimpleItemFormat<T> format = new SimpleItemFormat<>(slot, itemStack, callback);
+        format.format(inventory, builder);
+
+        builder.addFormat(format);
+    }
+
+    @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory) {
-        format(inventory, builder);
-    }
-
-    @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
-                       @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callback) {
-
-        this.callBack = callback == null ? this.callBack : callback::accept;
-        this.icon = itemStack;
-        this.slot = slot;
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(inventory, "inventory cannot be null");
 
         format(inventory, builder);
     }
 
     @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
-                       @NotNull T object, @Nullable ObjectCallback<T> callback) {
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                       @NotNull T object, int slot) {
 
-        this.slot = slot;
-        this.object = object;
-        this.callBack = callback == null ? this.callBack : callback;
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(inventory, "inventory cannot be null");
+        Validate.notNull(object, "object cannot be null");
 
-        format(inventory, builder);
+        if (this.slot == slot) {
+            this.object = object;
+            this.icon = null;
+
+            format(inventory, builder);
+            return;
+        }
+
+        SimpleObjectFormat<T> format = new SimpleObjectFormat<>(slot, object, null);
+        format.format(inventory, builder);
+
+        builder.addFormat(format);
+    }
+
+    @Override
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                       @Nullable ObjectCallback<T> callback, @NotNull T object, int slot) {
+
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(inventory, "inventory cannot be null");
+        Validate.notNull(object, "object cannot be null");
+
+        if (this.slot == slot) {
+            this.object = object;
+            this.icon = null;
+            this.callBack = callback;
+
+            format(inventory, builder);
+            return;
+        }
+
+        SimpleObjectFormat<T> format = new SimpleObjectFormat<>(slot, object, callback);
+        format.format(inventory, builder);
+
+        builder.addFormat(format);
     }
 
     @Override
@@ -99,5 +166,4 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
     public int hashCode() {
         return Objects.hash(getSlot());
     }
-
 }

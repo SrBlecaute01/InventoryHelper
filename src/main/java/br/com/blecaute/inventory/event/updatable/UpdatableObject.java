@@ -1,4 +1,4 @@
-package br.com.blecaute.inventory.event;
+package br.com.blecaute.inventory.event.updatable;
 
 import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.type.InventoryItem;

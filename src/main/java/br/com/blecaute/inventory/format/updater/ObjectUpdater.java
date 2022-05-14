@@ -5,6 +5,7 @@ import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.type.InventoryItem;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface ObjectUpdater<T extends InventoryItem> extends ItemUpdater<T> {
 
@@ -29,5 +30,5 @@ public interface ObjectUpdater<T extends InventoryItem> extends ItemUpdater<T> {
      * @param callback The @{@link ObjectCallback}
      */
     void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                @NotNull ObjectCallback<T> callback, @NotNull T object, int slot);
+                @Nullable ObjectCallback<T> callback, @NotNull T object, int slot);
 }

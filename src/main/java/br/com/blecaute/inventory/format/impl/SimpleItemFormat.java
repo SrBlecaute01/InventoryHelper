@@ -6,7 +6,8 @@ import br.com.blecaute.inventory.event.ItemClickEvent;
 import br.com.blecaute.inventory.format.SimpleFormat;
 import br.com.blecaute.inventory.format.updater.ItemUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
-import lombok.Getter;
+import lombok.Data;
+import org.apache.commons.lang.Validate;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -15,12 +16,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-@Getter
+@Data
 public class SimpleItemFormat<T extends InventoryItem> implements SimpleFormat<T>, ItemUpdater<T> {
 
     private int slot;
-    @Nullable private ItemStack itemStack;
-    @Nullable private ItemCallback<T> callBack;
+    private ItemStack itemStack;
+    private ItemCallback<T> callBack;
 
     public SimpleItemFormat(int slot, @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
         this.slot = slot;
@@ -41,14 +42,46 @@ public class SimpleItemFormat<T extends InventoryItem> implements SimpleFormat<T
     }
 
     @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot,
-                       @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callback) {
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                       @NotNull ItemStack itemStack, int slot) {
 
-        this.slot = slot;
-        this.itemStack = itemStack;
-        this.callBack = callback == null ? this.callBack : callback;
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(inventory, "inventory cannot be null");
+        Validate.notNull(itemStack, "itemStack cannot be null");
 
-        format(inventory, builder);
+        if (this.slot == slot) {
+            this.itemStack = itemStack;
+
+            format(inventory, builder);
+            return;
+        }
+
+        SimpleItemFormat<T> format = new SimpleItemFormat<>(slot, itemStack, null);
+        format.format(inventory, builder);
+
+        builder.addFormat(format);
+    }
+
+    @Override
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                       @Nullable ItemCallback<T> callback, @NotNull ItemStack itemStack, int slot) {
+
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(inventory, "inventory cannot be null");
+        Validate.notNull(itemStack, "itemStack cannot be null");
+
+        if (this.slot == slot) {
+            this.itemStack = itemStack;
+            this.callBack = callback;
+
+            format(inventory, builder);
+            return;
+        }
+
+        SimpleItemFormat<T> format = new SimpleItemFormat<>(slot, itemStack, callback);
+        format.format(inventory, builder);
+
+        builder.addFormat(format);
     }
 
     @Override

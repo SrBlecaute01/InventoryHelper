@@ -4,6 +4,7 @@ import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.InventoryBuilder;
 import lombok.Data;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -21,6 +22,14 @@ public abstract class InventoryEvent<T extends InventoryItem> {
      * The click event
      */
     @NotNull private final InventoryClickEvent event;
+
+    public int getSlot() {
+        return event.getRawSlot();
+    }
+
+    public Player getPlayer() {
+        return (Player) event.getWhoClicked();
+    }
 
     public Inventory getInventory() {
         return event.getInventory();
