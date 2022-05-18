@@ -2,6 +2,8 @@ package br.com.blecaute.inventory;
 
 import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.callback.ObjectCallback;
+import br.com.blecaute.inventory.callback.PaginatedItemCallback;
+import br.com.blecaute.inventory.callback.PaginatedObjectCallback;
 import br.com.blecaute.inventory.enums.ButtonType;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
@@ -149,7 +151,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param callBack The @{@link ItemCallback}
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItems(@NotNull ItemStack[] items, @Nullable ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withItems(@NotNull ItemStack[] items, @Nullable PaginatedItemCallback<T> callBack) {
         return withItems(Arrays.asList(items), callBack);
     }
 
@@ -160,7 +162,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param callBack The @{@link ItemCallback}
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItems(@NotNull Collection<ItemStack> items, @Nullable ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withItems(@NotNull Collection<ItemStack> items, @Nullable PaginatedItemCallback<T> callBack) {
         return withItems(new ArrayList<>(items), callBack);
     }
 
@@ -172,7 +174,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItems(@NotNull List<ItemStack> items, @Nullable ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withItems(@NotNull List<ItemStack> items, @Nullable PaginatedItemCallback<T> callBack) {
         addFormat(new PaginatedItemFormat<>(items, skipFunction::apply, callBack));
         return this;
     }
@@ -202,7 +204,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param callBack The @{@link ObjectCallback}
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withObjects(@NotNull T[] objects, @Nullable ObjectCallback<T> callBack) {
+    public InventoryBuilder<T> withObjects(@NotNull T[] objects, @Nullable PaginatedObjectCallback<T> callBack) {
         return withObjects(Arrays.asList(objects), callBack);
     }
 
@@ -213,7 +215,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param callBack The @{@link ObjectCallback}
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withObjects(@NotNull Collection<T> objects, @Nullable ObjectCallback<T> callBack) {
+    public InventoryBuilder<T> withObjects(@NotNull Collection<T> objects, @Nullable PaginatedObjectCallback<T> callBack) {
         return withObjects(new ArrayList<>(objects), callBack);
     }
 
@@ -225,7 +227,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable ObjectCallback<T> callBack) {
+    public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable PaginatedObjectCallback<T> callBack) {
         addFormat(new PaginatedObjectFormat<>(objects, skipFunction::apply, callBack));
         return this;
     }

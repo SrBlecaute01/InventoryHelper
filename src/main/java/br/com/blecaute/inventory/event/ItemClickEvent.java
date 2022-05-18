@@ -6,6 +6,8 @@ import br.com.blecaute.inventory.event.updatable.UpdatableItem;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.format.updater.ItemUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ItemClickEvent<T extends InventoryItem> extends InventoryEvent<T> implements UpdatableItem<T> {
 
-    private final InventoryFormat<T> format;
+    protected final InventoryFormat<T> format;
 
     public ItemClickEvent(@NotNull InventoryFormat<T> format,
                           @NotNull InventoryBuilder<T> builder,
@@ -56,5 +58,6 @@ public class ItemClickEvent<T extends InventoryItem> extends InventoryEvent<T> i
 
         return (ItemUpdater<T>) format;
     }
+
 
 }

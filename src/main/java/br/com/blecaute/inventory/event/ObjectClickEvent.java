@@ -20,7 +20,6 @@ import java.util.Objects;
  */
 public class ObjectClickEvent<T extends InventoryItem> extends ItemClickEvent<T> implements UpdatableObject<T> {
 
-    private final InventoryFormat<T> format;
     private final T object;
 
     public ObjectClickEvent(@NotNull InventoryFormat<T> format,
@@ -29,7 +28,6 @@ public class ObjectClickEvent<T extends InventoryItem> extends ItemClickEvent<T>
                             @Nullable T object) {
 
         super(format, builder, event);
-        this.format = format;
         this.object = object;
     }
 
