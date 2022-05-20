@@ -175,7 +175,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @return This @{@link InventoryBuilder}
      */
     public InventoryBuilder<T> withItems(@NotNull List<ItemStack> items, @Nullable PaginatedItemCallback<T> callBack) {
-        addFormat(new PaginatedItemFormat<>(items, skipFunction::apply, callBack));
+        addFormat(new PaginatedItemFormat<>(items, skipFunction != null ? skipFunction::apply : null, callBack));
         return this;
     }
 
@@ -228,7 +228,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @return This @{@link InventoryBuilder}
      */
     public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable PaginatedObjectCallback<T> callBack) {
-        addFormat(new PaginatedObjectFormat<>(objects, skipFunction::apply, callBack));
+        addFormat(new PaginatedObjectFormat<>(objects, skipFunction != null ? skipFunction::apply : null, callBack));
         return this;
     }
 
