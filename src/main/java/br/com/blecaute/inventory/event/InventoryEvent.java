@@ -1,9 +1,13 @@
 package br.com.blecaute.inventory.event;
 
+import br.com.blecaute.inventory.InventoryUpdater;
 import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.InventoryBuilder;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -16,15 +20,26 @@ import org.jetbrains.annotations.NotNull;
 @Data
 public abstract class InventoryEvent<T extends InventoryItem> {
 
-    /**
-     * The @{@link InventoryBuilder}
-     */
     @NotNull private final InventoryBuilder<T> builder;
+    @NotNull private final InventoryClickEvent event;
+
+    @Getter(AccessLevel.PROTECTED)
+    protected final InventoryUpdater<T> updater;
 
     /**
-     * The @{@link InventoryClickEvent}
+     * Create a new InventoryEvent with the given InventoryBuilder and InventoryClickEvent
+     *
+     * @param builder The @{@link InventoryBuilder}
+     * @param event The @{@link InventoryClickEvent}
      */
-    @NotNull private final InventoryClickEvent event;
+    public InventoryEvent(@NotNull InventoryBuilder<T> builder, @NotNull InventoryClickEvent event) {
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(event, "event cannot be null");
+
+        this.builder = builder;
+        this.event = event;
+        this.updater = new InventoryUpdater<>(builder, event.getInventory());
+    }
 
     /**
      * Get index of clicked slot

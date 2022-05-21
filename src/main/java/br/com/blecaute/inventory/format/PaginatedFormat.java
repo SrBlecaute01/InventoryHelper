@@ -1,6 +1,7 @@
 package br.com.blecaute.inventory.format;
 
 import br.com.blecaute.inventory.InventoryBuilder;
+import br.com.blecaute.inventory.configuration.PaginatedConfiguration;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.util.ListUtil;
 
@@ -11,6 +12,8 @@ import java.util.Map;
  * Interface to create paginated inventory in @{@link InventoryBuilder}
  */
 public interface PaginatedFormat<T extends InventoryItem> extends InventoryFormat<T> {
+
+    PaginatedConfiguration getConfiguration();
 
     /**
      * Get size of objects.

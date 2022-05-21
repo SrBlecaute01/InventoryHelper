@@ -9,16 +9,8 @@ import org.jetbrains.annotations.Nullable;
 
 public interface ObjectUpdater<T extends InventoryItem> extends ItemUpdater<T> {
 
-    /**
-     * Update all objects in inventory
-     *
-     * @param builder The @{@link InventoryBuilder}
-     * @param inventory The @{@link Inventory}
-     */
-    void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory);
-
     void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                @NotNull T object, int slot);
+                @NotNull T object);
 
     /**
      * Update object in inventory
@@ -30,5 +22,6 @@ public interface ObjectUpdater<T extends InventoryItem> extends ItemUpdater<T> {
      * @param callback The @{@link ObjectCallback}
      */
     void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                @Nullable ObjectCallback<T> callback, @NotNull T object, int slot);
+                @Nullable ObjectCallback<T> callback, @NotNull T object);
+
 }

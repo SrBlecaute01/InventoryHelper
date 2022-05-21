@@ -50,104 +50,46 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
     }
 
     @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                       @NotNull ItemStack itemStack, int slot) {
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @Nullable ItemStack itemStack) {
+        validate(builder, inventory);
 
-        Validate.notNull(itemStack, "itemStack cannot be null");
-        validate(builder, inventory, slot);
-
-        if (this.slot == slot) {
-            this.icon = itemStack;
-
-            format(inventory, builder);
-            return;
-        }
-
-        SimpleItemFormat<T> format = new SimpleItemFormat<>(slot, itemStack, null);
-        format.format(inventory, builder);
-
-        builder.addFormat(format);
-    }
-
-    @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                       @Nullable ItemCallback<T> callback, @NotNull ItemStack itemStack, int slot) {
-
-        Validate.notNull(itemStack, "itemStack cannot be null");
-        validate(builder, inventory, slot);
-
-        if (this.slot == slot) {
-            this.icon = itemStack;
-            this.callBack = callback != null ? callback::accept : null;
-
-            format(inventory, builder);
-            return;
-        }
-
-        SimpleItemFormat<T> format = new SimpleItemFormat<>(slot, itemStack, callback);
-        format.format(inventory, builder);
-
-        builder.addFormat(format);
-    }
-
-    @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory) {
-        Validate.notNull(builder, "builder cannot be null");
-        Validate.notNull(inventory, "inventory cannot be null");
+        this.icon = itemStack;
 
         format(inventory, builder);
     }
 
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                       @NotNull T object, int slot) {
+                       @Nullable ItemCallback<T> callback, @Nullable ItemStack itemStack) {
 
+        update(builder, inventory, itemStack);
+
+        this.callBack = callback != null ? callback::accept : null;
+    }
+
+    @Override
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @NotNull T object) {
+        validate(builder, inventory);
         Validate.notNull(object, "object cannot be null");
-        validate(builder, inventory, slot);
 
-        if (this.slot == slot) {
-            this.object = object;
-            this.icon = null;
+        this.object = object;
+        this.icon = null;
 
-            format(inventory, builder);
-            return;
-        }
-
-        SimpleObjectFormat<T> format = new SimpleObjectFormat<>(slot, object, null);
-        format.format(inventory, builder);
-
-        builder.addFormat(format);
+        format(inventory, builder);
     }
 
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                       @Nullable ObjectCallback<T> callback, @NotNull T object, int slot) {
+                       @Nullable ObjectCallback<T> callback, @NotNull T object) {
 
-        Validate.notNull(object, "object cannot be null");
-        validate(builder, inventory, slot);
+        update(builder, inventory, object);
 
-        if (this.slot == slot) {
-            this.object = object;
-            this.icon = null;
-            this.callBack = callback;
-
-            format(inventory, builder);
-            return;
-        }
-
-        SimpleObjectFormat<T> format = new SimpleObjectFormat<>(slot, object, callback);
-        format.format(inventory, builder);
-
-        builder.addFormat(format);
+        this.callBack = callback;
     }
 
-    private void validate(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, int slot) {
+    private void validate(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory) {
         Validate.notNull(builder, "builder cannot be null");
         Validate.notNull(inventory, "inventory cannot be null");
-        Validate.isTrue(
-                slot >= 0 && slot < inventory.getSize(),
-                "slot must be between 0 and " + inventory.getSize()
-        );
     }
 
     @Override

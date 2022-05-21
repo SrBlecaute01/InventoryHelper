@@ -4,6 +4,8 @@ import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.callback.PaginatedItemCallback;
 import br.com.blecaute.inventory.callback.PaginatedObjectCallback;
+import br.com.blecaute.inventory.configuration.InventoryConfiguration;
+import br.com.blecaute.inventory.configuration.PaginatedConfiguration;
 import br.com.blecaute.inventory.enums.ButtonType;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
@@ -19,8 +21,10 @@ import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -29,6 +33,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -39,36 +45,52 @@ import java.util.function.Function;
 @Getter
 public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
-    @Getter(AccessLevel.NONE) private final String inventoryName;
-    @Getter(AccessLevel.NONE) private Inventory inventory;
+    private InventoryConfiguration configuration;
 
-    @Getter(AccessLevel.NONE) private Function<Integer, Boolean> skipFunction;
+    @Getter(AccessLevel.PRIVATE)
+    private Inventory inventory;
 
+    @Getter(AccessLevel.PRIVATE)
+    @Deprecated
+    private Function<Integer, Boolean> skipFunction;
+
+    @Deprecated
     private int startSlot = 0;
+
+    @Deprecated
     private int exitSlot;
 
+    @Deprecated
     private int pageSize = 0;
+
     private int currentPage = 1;
 
     private InventoryProperty properties = new InventoryProperty();
+
+    @Getter(AccessLevel.PRIVATE)
     private Map<ButtonType, Pair<Integer, ItemStack>> buttons = new EnumMap<>(ButtonType.class);
-    private Set<InventoryFormat<T>> formats = new LinkedHashSet<>();
+
+    @Getter(AccessLevel.PROTECTED)
+    private Set<InventoryFormat<T>> formats = ConcurrentHashMap.newKeySet();
 
     /**
      * Create instance of @{@link InventoryBuilder}
      *
-     * @param name  The name of @{@link Inventory}
+     * @param title The title of @{@link Inventory}
      * @param lines The lines of @{@link Inventory}
      */
-    public InventoryBuilder(String name, int lines) {
+    public InventoryBuilder(String title, int lines) {
+        this(new InventoryConfiguration(title, lines));
+    }
+
+    public InventoryBuilder(InventoryConfiguration configuration) {
         if (!InventoryHelper.isEnabled()) {
             throw new InventoryBuilderException("The InventoryHelper must be enabled");
         }
 
-        int size = Math.min(6, Math.max(1, lines)) * 9;
-        this.inventoryName = name.replace("&", "§");
-        this.exitSlot = size;
-        this.inventory = createInventory(size);
+        this.configuration = configuration;
+        this.exitSlot = Math.min(6, Math.max(1, configuration.getLines())) * 9;
+        this.inventory = createInventory();
     }
 
     /**
@@ -77,6 +99,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param size  The size
      * @return This @{@link InventoryBuilder}
      */
+    @Deprecated
     public InventoryBuilder<T> withPageSize(int size)  {
         this.pageSize = size;
         return this;
@@ -88,6 +111,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param start The slot
      * @return This @{@link InventoryBuilder}
      */
+    @Deprecated
     public InventoryBuilder<T> withStart(int start) {
         this.startSlot = start;
         return this;
@@ -99,6 +123,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param exit  The slot.
      * @return This @{@link InventoryBuilder}
      */
+    @Deprecated
     public InventoryBuilder<T> withExit(int exit) {
         this.exitSlot = exit;
         return this;
@@ -110,6 +135,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param skip The slots
      * @return This @{@link InventoryBuilder}
      */
+    @Deprecated
     public InventoryBuilder<T> withSkip(int... skip) {
         this.skipFunction = integer -> Arrays.stream(skip).anyMatch(slot -> slot == integer);
         return this;
@@ -121,8 +147,25 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param skip The @{@link Function} to check slot.
      * @return This @{@link InventoryBuilder}
      */
+    @Deprecated
     public InventoryBuilder<T> withSkip(@Nullable Function<Integer, Boolean> skip) {
         this.skipFunction = skip;
+        return this;
+    }
+
+    /**
+     * Set item in @{@link Inventory}
+     *
+     * @param slot      The slot
+     * @param itemStack The @{@link ItemStack}
+     *
+     * @return This @{@link InventoryBuilder}
+     */
+    public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack) {
+        if (slot >= 0) {
+            addFormat(new SimpleItemFormat<>(slot, itemStack, null));
+        }
+
         return this;
     }
 
@@ -135,7 +178,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack, @NotNull ItemCallback<T> callBack) {
 
         if (slot >= 0) {
             addFormat(new SimpleItemFormat<>(slot, itemStack, callBack));
@@ -151,6 +194,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param callBack The @{@link ItemCallback}
      * @return This @{@link InventoryBuilder}
      */
+    @Deprecated
     public InventoryBuilder<T> withItems(@NotNull ItemStack[] items, @Nullable PaginatedItemCallback<T> callBack) {
         return withItems(Arrays.asList(items), callBack);
     }
@@ -159,12 +203,56 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * Set items in @{@link Inventory} with pagination
      *
      * @param items The collection of @{@link ItemStack}
-     * @param callBack The @{@link ItemCallback}
+     * @param callback The @{@link ItemCallback}
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withItems(@NotNull Collection<ItemStack> items, @Nullable PaginatedItemCallback<T> callBack) {
-        addFormat(new PaginatedItemFormat<>(items, skipFunction != null ? skipFunction::apply : null, callBack));
+    @Deprecated
+    public InventoryBuilder<T> withItems(@NotNull Collection<ItemStack> items, @Nullable PaginatedItemCallback<T> callback) {
+        PaginatedConfiguration configuration = PaginatedConfiguration.builder("" + this.startSlot)
+                .size(this.pageSize)
+                .end(this.exitSlot)
+                .validator(skipFunction != null ? skipFunction::apply : null)
+                .build();
+
+        return withItems(configuration, items, callback);
+    }
+
+    public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration,
+                                         @NotNull ItemStack[] items) {
+
+        return withItems(configuration, items, null);
+    }
+
+    public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration,
+                                         @NotNull ItemStack[] items,
+                                         @Nullable PaginatedItemCallback<T> callback) {
+
+        if (configuration.getStart() >= 0) {
+            this.addFormat(new PaginatedItemFormat<T>(configuration, items, callback));
+        }
+
         return this;
+    }
+
+    public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration,
+                                         @NotNull Collection<ItemStack> items) {
+
+        return withItems(configuration, items, null);
+    }
+
+    public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration,
+                                         @NotNull Collection<ItemStack> items,
+                                         @Nullable PaginatedItemCallback<T> callback) {
+
+        if (configuration.getStart() >= 0) {
+            this.addFormat(new PaginatedItemFormat<T>(configuration, items, callback));
+        }
+
+        return this;
+    }
+
+    public InventoryBuilder<T> withObject(int slot, @NotNull T value) {
+        return withObject(slot, value, null);
     }
 
     /**
@@ -192,19 +280,54 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @param callBack The @{@link ObjectCallback}
      * @return This @{@link InventoryBuilder}
      */
+    @Deprecated
     public InventoryBuilder<T> withObjects(@NotNull T[] objects, @Nullable PaginatedObjectCallback<T> callBack) {
-        return withObjects(Arrays.asList(objects), callBack);
+        PaginatedConfiguration configuration = PaginatedConfiguration.builder("" + this.startSlot)
+                .size(this.pageSize)
+                .end(this.exitSlot)
+                .validator(skipFunction != null ? skipFunction::apply : null)
+                .build();
+
+        return withObjects(configuration, objects, callBack);
     }
 
     /**
      * Set items in @{@link Inventory} with pagination
      *
      * @param objects The collection of @{@link InventoryItem}
-     * @param callBack The @{@link ObjectCallback}
+     * @param callback The @{@link ObjectCallback}
      * @return This @{@link InventoryBuilder}
      */
-    public InventoryBuilder<T> withObjects(@NotNull Collection<T> objects, @Nullable PaginatedObjectCallback<T> callBack) {
-        addFormat(new PaginatedObjectFormat<>(objects, skipFunction != null ? skipFunction::apply : null, callBack));
+    @Deprecated
+    public InventoryBuilder<T> withObjects(@NotNull Collection<T> objects, @Nullable PaginatedObjectCallback<T> callback) {
+        PaginatedConfiguration configuration = PaginatedConfiguration.builder("" + this.startSlot)
+                .size(this.pageSize)
+                .end(this.exitSlot)
+                .validator(skipFunction != null ? skipFunction::apply : null)
+                .build();
+
+        return withObjects(configuration, objects, callback);
+    }
+
+    public InventoryBuilder<T> withObjects(@NotNull PaginatedConfiguration configuration,
+                                           @NotNull T[] objects,
+                                           @Nullable PaginatedObjectCallback<T> callback) {
+
+        if (configuration.getStart() >= 0) {
+            this.addFormat(new PaginatedObjectFormat<T>(configuration, objects, callback));
+        }
+
+        return this;
+    }
+
+    public InventoryBuilder<T> withObjects(@NotNull PaginatedConfiguration configuration,
+                                           @NotNull Collection<T> objects,
+                                           @Nullable PaginatedObjectCallback<T> callback) {
+
+        if (configuration.getStart() >= 0) {
+            this.addFormat(new PaginatedObjectFormat<T>(configuration, objects, callback));
+        }
+
         return this;
     }
 
@@ -256,7 +379,8 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         try {
             InventoryBuilder<T> clone = (InventoryBuilder<T>) super.clone();
 
-            clone.inventory = clone.createInventory(this.inventory.getSize());
+            clone.configuration = this.configuration.clone();
+            clone.inventory = clone.createInventory();
             clone.properties = this.properties.clone();
             clone.buttons = new EnumMap<>(this.buttons);
             clone.formats = new LinkedHashSet<>(this.formats);
@@ -359,13 +483,15 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         }
     }
 
-    private Inventory createInventory(int size) {
+    private Inventory createInventory() {
+        String name = ChatColor.translateAlternateColorCodes('&', configuration.getTitle());
+        int size = Math.min(6, Math.max(1, configuration.getLines()));
+
         return Bukkit.createInventory(new CustomHolder(event -> {
-            if (event instanceof org.bukkit.event.inventory.InventoryClickEvent) {
-                org.bukkit.event.inventory.InventoryClickEvent click = (org.bukkit.event.inventory.InventoryClickEvent) event;
+            if (event instanceof InventoryClickEvent) {
+                InventoryClickEvent click = (InventoryClickEvent) event;
 
                 int slot = click.getRawSlot();
-
                 for (Map.Entry<ButtonType, Pair<Integer, ItemStack>> entry : buttons.entrySet()) {
                     if (entry.getValue().getKey() == slot) {
                         this.currentPage = this.currentPage + entry.getKey().getValue();
@@ -383,7 +509,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
             }
 
-        }), size, inventoryName);
+        }), size, name);
     }
 
     @Data

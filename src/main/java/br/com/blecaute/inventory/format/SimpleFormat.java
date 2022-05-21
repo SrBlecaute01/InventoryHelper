@@ -50,7 +50,9 @@ public interface SimpleFormat<T extends InventoryItem> extends InventoryFormat<T
      * @param builder The @{@link InventoryBuilder}
      */
     default void format(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) {
-        inventory.setItem(getSlot(), getItemStack(inventory, builder));
+        if (getSlot() >= 0 && getSlot() < inventory.getSize()) {
+            inventory.setItem(getSlot(), getItemStack(inventory, builder));
+        }
     }
 
 }

@@ -11,12 +11,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <T> The type of @{@link InventoryItem}
  */
-public interface UpdatableObject<T extends InventoryItem> extends Updatable {
-
-    /**
-     * Update all objects of inventory
-     */
-    void update();
+public interface UpdatableObject<T extends InventoryItem> extends Updatable<T> {
 
     /**
      * Update clicked object
@@ -31,15 +26,6 @@ public interface UpdatableObject<T extends InventoryItem> extends Updatable {
      * @param object The object
      * @param callback The @{@link ObjectCallback}
      */
-    void update(@NotNull T object, @Nullable ObjectCallback<T> callback);
-
-    /**
-     * Update object in inventory
-     *
-     * @param slot The slot
-     * @param object The object
-     * @param callback The @{@link ObjectCallback}
-     */
-    void update(int slot, @NotNull T object, @Nullable ObjectCallback<T> callback);
+    void update(@NotNull T object, @NotNull ObjectCallback<T> callback);
 
 }

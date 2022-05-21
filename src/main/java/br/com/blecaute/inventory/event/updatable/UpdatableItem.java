@@ -12,14 +12,14 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <T> The type of @{@link InventoryItem}
  */
-public interface UpdatableItem<T extends InventoryItem> extends Updatable {
+public interface UpdatableItem<T extends InventoryItem> extends Updatable<T> {
 
     /**
      * Update clicked @{@link ItemStack}
      *
      * @param itemStack the @{@link ItemStack}
      */
-    void update(@NotNull ItemStack itemStack);
+    void update(@Nullable ItemStack itemStack);
 
     /**
      * Update clicked @{@link ItemStack} and change your callback
@@ -27,14 +27,6 @@ public interface UpdatableItem<T extends InventoryItem> extends Updatable {
      * @param itemStack The @{@link ItemStack}
      * @param callback The @{@link ItemCallback}
      */
-    void update(@NotNull ItemStack itemStack, @Nullable ItemCallback<T> callback);
+    void update(@Nullable ItemStack itemStack, @NotNull ItemCallback<T> callback);
 
-    /**
-     * Update @{@link ItemStack} in inventory
-     *
-     * @param slot The slot of inventory
-     * @param itemStack The @{@link ItemStack}
-     * @param callback The @{@link ItemCallback}
-     */
-    void update(int slot, @NotNull ItemStack itemStack, @Nullable ItemCallback<T> callback);
 }

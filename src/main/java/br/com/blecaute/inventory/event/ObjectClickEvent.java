@@ -37,37 +37,13 @@ public class ObjectClickEvent<T extends InventoryItem> extends ItemClickEvent<T>
     }
 
     @Override
-    public void update(int slot, @NotNull ItemStack itemStack) {
-        getUpdater().update(getBuilder(), getInventory(), itemStack, slot);
-    }
-
-    @Override
-    public void update() {
-        getUpdater().update(getBuilder(), getInventory());
-    }
-
-    @Override
     public void update(@NotNull T object) {
-        getUpdater().update(getBuilder(), getInventory(), object, getSlot());
+        updateObject(getSlot(), object);
     }
 
     @Override
-    public void update(@NotNull T object, @Nullable ObjectCallback<T> callback) {
-        getUpdater().update(getBuilder(), getInventory(), callback, object, getSlot());
-    }
-
-    @Override
-    public void update(int slot, @NotNull T object, @Nullable ObjectCallback<T> callback) {
-        getUpdater().update(getBuilder(), getInventory(), callback, object, slot);
-    }
-
-    @SuppressWarnings("unchecked")
-    private ObjectUpdater<T> getUpdater() {
-        if (!(format instanceof ObjectUpdater)) {
-            throw new UnsupportedOperationException("The format is not an instance of ObjectUpdater");
-        }
-
-        return (ObjectUpdater<T>) format;
+    public void update(@NotNull T object, @NotNull ObjectCallback<T> callback) {
+        updateObject(getSlot(), object, callback);
     }
 
 }

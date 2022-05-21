@@ -1,16 +1,16 @@
 package br.com.blecaute.inventory.event;
 
 import br.com.blecaute.inventory.InventoryBuilder;
+import br.com.blecaute.inventory.callback.PaginatedItemCallback;
 import br.com.blecaute.inventory.event.updatable.UpdatableItemPaginated;
 import br.com.blecaute.inventory.format.InventoryFormat;
-import br.com.blecaute.inventory.format.updater.PaginatedItemUpdater;
+import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.List;
 
 public class PaginatedItemEvent<T extends InventoryItem> extends ItemClickEvent<T> implements UpdatableItemPaginated<T> {
 
@@ -23,11 +23,16 @@ public class PaginatedItemEvent<T extends InventoryItem> extends ItemClickEvent<
 
     @Override
     public void update(@NotNull Collection<ItemStack> items) {
-        if (!(format instanceof PaginatedItemUpdater)) {
-            throw new UnsupportedOperationException("The format is not an instance of PaginatedObjectFormat");
-        }
+        updater.updateItem(getIdentifier(), items);
+    }
 
-        ((PaginatedItemUpdater<T>) format).update(getBuilder(), getInventory(), items);
+    @Override
+    public void update(@NotNull Collection<ItemStack> items, @NotNull PaginatedItemCallback<T> callback) {
+        updater.updateItems(getIdentifier(), items, callback);
+    }
+
+    private @NotNull String getIdentifier() {
+        return ((PaginatedFormat<T>) format).getConfiguration().getIdentifier();
     }
 
 }
