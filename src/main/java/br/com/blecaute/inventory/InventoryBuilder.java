@@ -78,18 +78,20 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     @Getter(AccessLevel.PRIVATE)
     private Map<ButtonType, Pair<Integer, ItemStack>> buttons = new EnumMap<>(ButtonType.class);
 
-
     /**
      * Create instance of @{@link InventoryBuilder}
      *
      * @param title The title of @{@link Inventory}
      * @param lines The lines of @{@link Inventory}
      */
-    public InventoryBuilder(String title, int lines) {
+    public InventoryBuilder(@NotNull String title, int lines) {
         this(new InventoryConfiguration(title, lines));
     }
 
-    public InventoryBuilder(InventoryConfiguration configuration) {
+    public InventoryBuilder(@NotNull InventoryConfiguration configuration) {
+        Validate.notNull(configuration, "Inventory configuration cannot be null");
+        Validate.notNull(configuration.getTitle(), "Inventory title cannot be null");
+
         if (!InventoryHelper.isEnabled()) {
             throw new InventoryBuilderException("The InventoryHelper must be enabled");
         }
@@ -97,6 +99,14 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         this.configuration = configuration;
         this.exitSlot = Math.min(6, Math.max(1, configuration.getLines())) * 9;
         this.inventory = createInventory();
+    }
+
+    public static <T extends InventoryItem> InventoryBuilder<T> of(@NotNull String title, int lines) {
+        return new InventoryBuilder<T>(title, lines);
+    }
+
+    public static <T extends InventoryItem> InventoryBuilder<T> of(@NotNull InventoryConfiguration configuration) {
+        return new InventoryBuilder<T>(configuration);
     }
 
     /**
