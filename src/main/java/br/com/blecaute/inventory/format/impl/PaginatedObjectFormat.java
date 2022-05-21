@@ -28,7 +28,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
     private final Map<Integer, SimpleObjectFormat<T>> slots = new HashMap<>();
     private final Map<Integer, List<SimpleObjectFormat<T>>> pages = new HashMap<>();
 
-    public PaginatedObjectFormat(@NotNull List<T> items,
+    public PaginatedObjectFormat(@NotNull Collection<T> items,
                                  @Nullable SlotValidator validator,
                                  @Nullable PaginatedObjectCallback<T> callback) {
 
