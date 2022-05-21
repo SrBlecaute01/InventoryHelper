@@ -148,6 +148,10 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
         this.items.clear();
         this.pages.clear();
 
+        for (Map.Entry<Integer, SimpleItemFormat<T>> entry : this.slots.entrySet()) {
+            inventory.setItem(entry.getKey(), null);
+        }
+
         for (ItemStack item : items) {
             this.items.add(new SimpleItemFormat<>(-1, item, null));
         }

@@ -204,9 +204,12 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
 
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @NotNull Collection<T> objects) {
-
         this.items.clear();
         this.pages.clear();
+
+        for (Map.Entry<Integer, SimpleObjectFormat<T>> entry : this.slots.entrySet()) {
+            inventory.setItem(entry.getKey(), null);
+        }
 
         for (T item : objects) {
             this.items.add(new SimpleObjectFormat<>(-1, item, null));
