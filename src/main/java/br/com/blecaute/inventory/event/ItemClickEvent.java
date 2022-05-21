@@ -55,8 +55,8 @@ public class ItemClickEvent<T extends InventoryItem> extends InventoryEvent<T> i
     }
 
     @Override
-    public void updateItem(@NotNull String identifier, @NotNull Collection<ItemStack> items) {
-        updater.updateItem(identifier, items);
+    public void updateItems(@NotNull String identifier, @NotNull Collection<ItemStack> items) {
+        updater.updateItems(identifier, items);
     }
 
     @Override
@@ -85,12 +85,12 @@ public class ItemClickEvent<T extends InventoryItem> extends InventoryEvent<T> i
     }
 
     @Override
-    public void update(@Nullable ItemStack itemStack) {
+    public void updateItem(@Nullable ItemStack itemStack) {
         updateItem(getSlot(), itemStack);
     }
 
     @Override
-    public void update(@Nullable ItemStack itemStack, @NotNull ItemCallback<T> callback) {
+    public void updateItem(@Nullable ItemStack itemStack, @NotNull ItemCallback<T> callback) {
         updateItem(getSlot(), itemStack, callback);
     }
 }

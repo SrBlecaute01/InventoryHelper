@@ -38,7 +38,7 @@ public abstract class InventoryEvent<T extends InventoryItem> {
 
         this.builder = builder;
         this.event = event;
-        this.updater = new InventoryUpdater<>(builder, event.getInventory());
+        this.updater = InventoryUpdater.of(builder);
     }
 
     /**

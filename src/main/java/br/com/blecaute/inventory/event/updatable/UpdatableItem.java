@@ -19,7 +19,7 @@ public interface UpdatableItem<T extends InventoryItem> extends Updatable<T> {
      *
      * @param itemStack the @{@link ItemStack}
      */
-    void update(@Nullable ItemStack itemStack);
+    void updateItem(@Nullable ItemStack itemStack);
 
     /**
      * Update clicked @{@link ItemStack} and change your callback
@@ -27,6 +27,6 @@ public interface UpdatableItem<T extends InventoryItem> extends Updatable<T> {
      * @param itemStack The @{@link ItemStack}
      * @param callback The @{@link ItemCallback}
      */
-    void update(@Nullable ItemStack itemStack, @NotNull ItemCallback<T> callback);
+    void updateItem(@Nullable ItemStack itemStack, @NotNull ItemCallback<T> callback);
 
 }

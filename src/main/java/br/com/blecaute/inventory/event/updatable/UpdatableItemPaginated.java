@@ -9,8 +9,8 @@ import java.util.Collection;
 
 public interface UpdatableItemPaginated<T extends InventoryItem> extends UpdatableItem<T> {
 
-    void update(@NotNull Collection<ItemStack> items);
+    void updateItems(@NotNull Collection<ItemStack> items);
 
-    void update(@NotNull Collection<ItemStack> items, @NotNull PaginatedItemCallback<T> callback);
+    void updateItems(@NotNull Collection<ItemStack> items, @NotNull PaginatedItemCallback<T> callback);
 
 }

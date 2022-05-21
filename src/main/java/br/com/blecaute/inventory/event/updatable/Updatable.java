@@ -23,7 +23,7 @@ public interface Updatable<T extends InventoryItem> {
 
     void updateItem(int slot, @Nullable ItemStack item, @Nullable ItemCallback<T> callback);
 
-    void updateItem(@NotNull String identifier, @NotNull Collection<ItemStack> items);
+    void updateItems(@NotNull String identifier, @NotNull Collection<ItemStack> items);
 
     void updateItems(@NotNull String identifier, @NotNull Collection<ItemStack> items, @Nullable PaginatedItemCallback<T> callback);
 

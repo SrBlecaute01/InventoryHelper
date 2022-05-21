@@ -23,12 +23,12 @@ public class PaginatedObjectEvent<T extends InventoryItem> extends ObjectClickEv
     }
 
     @Override
-    public void update(@NotNull Collection<T> objects) {
+    public void updateObjects(@NotNull Collection<T> objects) {
         updater.updateObjects(getIdentifier(), objects);
     }
 
     @Override
-    public void update(@NotNull Collection<T> objects, @NotNull PaginatedObjectCallback<T> callback) {
+    public void updateObjects(@NotNull Collection<T> objects, @NotNull PaginatedObjectCallback<T> callback) {
         updater.updateObjects(getIdentifier(), objects, callback);
     }
 

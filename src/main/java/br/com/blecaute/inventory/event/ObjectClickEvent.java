@@ -37,12 +37,12 @@ public class ObjectClickEvent<T extends InventoryItem> extends ItemClickEvent<T>
     }
 
     @Override
-    public void update(@NotNull T object) {
+    public void updateObject(@NotNull T object) {
         updateObject(getSlot(), object);
     }
 
     @Override
-    public void update(@NotNull T object, @NotNull ObjectCallback<T> callback) {
+    public void updateObject(@NotNull T object, @NotNull ObjectCallback<T> callback) {
         updateObject(getSlot(), object, callback);
     }
 

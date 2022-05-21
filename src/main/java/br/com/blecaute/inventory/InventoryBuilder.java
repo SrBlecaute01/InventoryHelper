@@ -1,9 +1,6 @@
 package br.com.blecaute.inventory;
 
-import br.com.blecaute.inventory.callback.ItemCallback;
-import br.com.blecaute.inventory.callback.ObjectCallback;
-import br.com.blecaute.inventory.callback.PaginatedItemCallback;
-import br.com.blecaute.inventory.callback.PaginatedObjectCallback;
+import br.com.blecaute.inventory.callback.*;
 import br.com.blecaute.inventory.configuration.InventoryConfiguration;
 import br.com.blecaute.inventory.configuration.PaginatedConfiguration;
 import br.com.blecaute.inventory.enums.ButtonType;
@@ -14,11 +11,13 @@ import br.com.blecaute.inventory.format.impl.PaginatedItemFormat;
 import br.com.blecaute.inventory.format.impl.PaginatedObjectFormat;
 import br.com.blecaute.inventory.format.impl.SimpleObjectFormat;
 import br.com.blecaute.inventory.format.impl.SimpleItemFormat;
+import br.com.blecaute.inventory.handler.UpdateHandler;
 import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -34,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -46,7 +46,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
     private InventoryConfiguration configuration;
 
-    @Getter(AccessLevel.PRIVATE)
+    @Getter(AccessLevel.PROTECTED)
     private Inventory inventory;
 
     @Getter(AccessLevel.PRIVATE)
@@ -66,11 +66,18 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
     private InventoryProperty properties = new InventoryProperty();
 
+    @Getter(AccessLevel.PROTECTED)
+    private Set<InventoryFormat<T>> formats = ConcurrentHashMap.newKeySet();
+
+    @Getter(AccessLevel.PROTECTED)
+    private InventoryUpdater<T> updater = InventoryUpdater.of(this);
+
+    @Getter(AccessLevel.PROTECTED)
+    private Set<UpdateHandler<T>> updateHandlers = new LinkedHashSet<>();
+
     @Getter(AccessLevel.PRIVATE)
     private Map<ButtonType, Pair<Integer, ItemStack>> buttons = new EnumMap<>(ButtonType.class);
 
-    @Getter(AccessLevel.PROTECTED)
-    private Set<InventoryFormat<T>> formats = ConcurrentHashMap.newKeySet();
 
     /**
      * Create instance of @{@link InventoryBuilder}
@@ -149,6 +156,19 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     @Deprecated
     public InventoryBuilder<T> withSkip(@Nullable Function<Integer, Boolean> skip) {
         this.skipFunction = skip;
+        return this;
+    }
+
+    public InventoryBuilder<T> withUpdate(long seconds, @NotNull UpdateCallback<T> callback) {
+        return withUpdate(seconds, TimeUnit.SECONDS, callback);
+    }
+
+    public InventoryBuilder<T> withUpdate(long time, @NotNull TimeUnit unit, @NotNull UpdateCallback<T> callback) {
+        Validate.isTrue(time > 0, "time must be greater than 0");
+        Validate.notNull(unit, "unit cannot be null");
+        Validate.notNull(callback, "callback cannot be null");
+
+        this.updateHandlers.add(new UpdateHandler<>(time, unit, callback));
         return this;
     }
 
@@ -382,7 +402,9 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
             clone.inventory = clone.createInventory();
             clone.properties = this.properties.clone();
             clone.buttons = new EnumMap<>(this.buttons);
+            clone.updater = new InventoryUpdater<>(clone);
             clone.formats = new LinkedHashSet<>(this.formats);
+            clone.updateHandlers = new LinkedHashSet<>(this.updateHandlers);
 
             return clone;
 
@@ -429,6 +451,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     public InventoryBuilder<T> open(Player player) {
         updateInventory();
         player.openInventory(inventory);
+        registryUpdates();
 
         return this;
     }
@@ -447,6 +470,8 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
             player.openInventory(inventory);
         }
 
+        registryUpdates();
+
         return this.inventory;
     }
 
@@ -457,6 +482,19 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         }
     }
 
+    protected void handleUpdates(int seconds) {
+        try {
+            for (UpdateHandler<T> handler : updateHandlers) {
+                if (handler.canUpdate(seconds)) {
+                    handler.call(this.updater);
+                }
+            }
+
+        } catch (Exception exception) {
+            throw new InventoryBuilderException(exception);
+        }
+    }
+
     private void updateInventory() {
         format();
 
@@ -464,6 +502,12 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
             if (human instanceof Player) {
                 ((Player) human).updateInventory();
             }
+        }
+    }
+
+    private void registryUpdates() {
+        if (this.updateHandlers.size() > 0) {
+            InventoryHelper.getManager().register(this);
         }
     }
 
@@ -484,7 +528,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
     private Inventory createInventory() {
         String name = ChatColor.translateAlternateColorCodes('&', configuration.getTitle());
-        int size = Math.min(6, Math.max(1, configuration.getLines()));
+        int size = Math.min(6, Math.max(1, configuration.getLines())) * 9;
 
         return Bukkit.createInventory(new CustomHolder(event -> {
             if (event instanceof InventoryClickEvent) {

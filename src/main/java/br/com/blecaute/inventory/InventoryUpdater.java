@@ -15,7 +15,10 @@ import br.com.blecaute.inventory.format.impl.SimpleObjectFormat;
 import br.com.blecaute.inventory.format.updater.ItemUpdater;
 import br.com.blecaute.inventory.format.updater.ObjectUpdater;
 import br.com.blecaute.inventory.format.updater.PaginatedObjectUpdater;
+import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -27,8 +30,22 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
 
+    @Getter(AccessLevel.PRIVATE)
     private final InventoryBuilder<T> builder;
-    private final Inventory inventory;
+
+    public static <T extends InventoryItem> InventoryUpdater<T> of(InventoryBuilder<T> builder) {
+        return new InventoryUpdater<>(builder);
+    }
+
+    @NotNull
+    public InventoryProperty getProperties() {
+        return builder.getProperties();
+    }
+
+    @NotNull
+    public Inventory getInventory() {
+        return builder.getInventory();
+    }
 
     @Override
     public void update() {
@@ -41,12 +58,12 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
 
         InventoryFormat<T> format = this.getFormat(slot);
         if (format != null) {
-            getItemUpdater(format).update(builder, inventory, item);
+            getItemUpdater(format).update(builder, getInventory(), item);
             return;
         }
 
         SimpleItemFormat<T> simpleFormat = new SimpleItemFormat<>(slot, item, null);
-        simpleFormat.format(inventory, builder);
+        simpleFormat.format(getInventory(), builder);
 
         builder.addFormat(simpleFormat);
     }
@@ -57,24 +74,24 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
 
         InventoryFormat<T> format = this.getFormat(slot);
         if (format != null) {
-            getItemUpdater(format).update(builder, inventory, callback, item);
+            getItemUpdater(format).update(builder, getInventory(), callback, item);
             return;
         }
 
         SimpleItemFormat<T> simpleFormat = new SimpleItemFormat<>(slot, item, callback);
-        simpleFormat.format(inventory, builder);
+        simpleFormat.format(getInventory(), builder);
 
         builder.addFormat(simpleFormat);
     }
 
     @Override
-    public void updateItem(@NotNull String identifier, @NotNull Collection<ItemStack> items) {
-        getPaginatedItemUpdater(this.getFormat(identifier)).update(builder, inventory, items);
+    public void updateItems(@NotNull String identifier, @NotNull Collection<ItemStack> items) {
+        getPaginatedItemUpdater(this.getFormat(identifier)).update(builder, getInventory(), items);
     }
 
     @Override
     public void updateItems(@NotNull String identifier, @NotNull Collection<ItemStack> items, @Nullable PaginatedItemCallback<T> callback) {
-        getPaginatedItemUpdater(this.getFormat(identifier)).update(builder, inventory, items, callback);
+        getPaginatedItemUpdater(this.getFormat(identifier)).update(builder, getInventory(), items, callback);
     }
 
     @Override
@@ -83,12 +100,12 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
 
         InventoryFormat<T> format = this.getFormat(slot);
         if (format != null) {
-            getObjectUpdater(format).update(builder, inventory, object);
+            getObjectUpdater(format).update(builder, getInventory(), object);
             return;
         }
 
         SimpleObjectFormat<T> simpleFormat = new SimpleObjectFormat<>(slot, object, null);
-        simpleFormat.format(inventory, builder);
+        simpleFormat.format(getInventory(), builder);
 
         builder.addFormat(simpleFormat);
     }
@@ -99,26 +116,26 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
 
         InventoryFormat<T> format = this.getFormat(slot);
         if (format != null) {
-            getObjectUpdater(format).update(builder, inventory, callback, object);
+            getObjectUpdater(format).update(builder, getInventory(), callback, object);
             return;
         }
 
         SimpleObjectFormat<T> simpleFormat = new SimpleObjectFormat<>(slot, object, null);
-        simpleFormat.format(inventory, builder);
+        simpleFormat.format(getInventory(), builder);
 
         builder.addFormat(simpleFormat);
     }
 
     @Override
     public void updateObjects(@NotNull String identifier, @NotNull Collection<T> objects) {
-        getPaginatedObjectFormat(this.getFormat(identifier)).update(builder, inventory, objects);
+        getPaginatedObjectFormat(this.getFormat(identifier)).update(builder, getInventory(), objects);
     }
 
     @Override
     public void updateObjects(@NotNull String identifier, @NotNull Collection<T> objects,
                               @Nullable PaginatedObjectCallback<T> callback) {
 
-        getPaginatedObjectFormat(this.getFormat(identifier)).update(builder, inventory, objects, callback);
+        getPaginatedObjectFormat(this.getFormat(identifier)).update(builder, getInventory(), objects, callback);
     }
 
     @SuppressWarnings("unchecked")
@@ -153,7 +170,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
     }
 
     private void validateSlot(int slot) {
-        int size = inventory.getSize();
+        int size = getInventory().getSize();
         if (slot < 0 || slot >= size) {
             throw new InventoryBuilderException(
                     "Cannot update item with given slot: " + slot + " for inventory with size: " + size
