@@ -10,22 +10,22 @@ import org.jetbrains.annotations.Nullable;
  * The class that implements the UpdatableItem indicates that
  * it has methods to update items in the inventory.
  *
- * @param <T> The type of @{@link InventoryItem}
+ * @param <T> The type of InventoryItem.
  */
 public interface UpdatableItem<T extends InventoryItem> extends Updatable<T> {
 
     /**
-     * Update clicked @{@link ItemStack}
+     * Update clicked ItemStack
      *
-     * @param itemStack the @{@link ItemStack}
+     * @param itemStack the ItemStack to set.
      */
     void updateItem(@Nullable ItemStack itemStack);
 
     /**
-     * Update clicked @{@link ItemStack} and change your callback
+     * Update clicked ItemStack.
      *
-     * @param itemStack The @{@link ItemStack}
-     * @param callback The @{@link ItemCallback}
+     * @param itemStack The ItemStack to set.
+     * @param callback The ItemCallback.
      */
     void updateItem(@Nullable ItemStack itemStack, @NotNull ItemCallback<T> callback);
 

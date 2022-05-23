@@ -4,18 +4,18 @@ import br.com.blecaute.inventory.event.InventoryEvent;
 import br.com.blecaute.inventory.type.InventoryItem;
 
 /**
- * The general functional interface responsible for creating the click return.
+ * The InventoryCallback is designed to process the click event in inventories.
  *
- * @param <S> The type of @{@link InventoryItem}
- * @param <T> The type of @{@link InventoryEvent}
+ * @param <S> The type of InventoryItem.
+ * @param <T> The type of InventoryEvent.
  */
 @FunctionalInterface
 public interface InventoryCallback<S extends InventoryItem, T extends InventoryEvent<S>> {
 
     /**
-     * Accept click event
+     * Accept click event.
      *
-     * @param click The type of @{@link InventoryEvent}
+     * @param click The type of InventoryEvent.
      */
     void accept(T click);
 

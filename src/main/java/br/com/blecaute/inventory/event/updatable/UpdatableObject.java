@@ -8,22 +8,22 @@ import org.jetbrains.annotations.NotNull;
  * The class that implements the UpdatableObject indicates that
  * it has methods to update objects saved in the inventory.
  *
- * @param <T> The type of @{@link InventoryItem}
+ * @param <T> The type of InventoryItem.
  */
 public interface UpdatableObject<T extends InventoryItem> extends Updatable<T> {
 
     /**
      * Update clicked object
      *
-     * @param object The object
+     * @param object The object to set.
      */
     void updateObject(@NotNull T object);
 
     /**
-     * Update object and your callback
+     * Update clicked object.
      *
-     * @param object The object
-     * @param callback The @{@link ObjectCallback}
+     * @param object The object to set.
+     * @param callback The ObjectCallback.
      */
     void updateObject(@NotNull T object, @NotNull ObjectCallback<T> callback);
 

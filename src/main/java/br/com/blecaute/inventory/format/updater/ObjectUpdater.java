@@ -12,15 +12,6 @@ public interface ObjectUpdater<T extends InventoryItem> extends ItemUpdater<T> {
     void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
                 @NotNull T object);
 
-    /**
-     * Update object in inventory
-     *
-     * @param builder The @{@link InventoryBuilder}
-     * @param inventory The @{@link Inventory}
-     * @param slot The slot to update
-     * @param object The object to update
-     * @param callback The @{@link ObjectCallback}
-     */
     void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
                 @Nullable ObjectCallback<T> callback, @NotNull T object);
 
