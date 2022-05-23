@@ -20,7 +20,11 @@ public class InventoryClickListener implements Listener {
             ItemStack item = event.getCurrentItem();
 
             if (item != null && item.getType() != Material.AIR) {
-                holder.getConsumer().accept(event);
+                try {
+                    holder.getConsumer().accept(event);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
             }
 
             event.setCancelled(true);
