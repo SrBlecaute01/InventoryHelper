@@ -156,7 +156,8 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
 
         SimpleObjectFormat<T> format = slots.get(slot);
         if (format != null) {
-            format.update(builder, inventory, itemStack, slot);
+            format.setIcon(itemStack);
+            inventory.setItem(slot, format.getItemStack(inventory, builder));
             return;
         }
 
@@ -196,7 +197,10 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
 
         SimpleObjectFormat<T> format = slots.get(slot);
         if (format != null) {
-            format.update(builder, inventory, object, slot);
+            format.setObject(object);
+            format.setIcon(null);
+
+            inventory.setItem(slot, format.getItemStack(inventory, builder));
             return;
         }
 

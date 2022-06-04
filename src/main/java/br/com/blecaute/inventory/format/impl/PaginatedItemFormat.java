@@ -139,7 +139,8 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
 
         SimpleItemFormat<T> format = slots.get(slot);
         if (format != null) {
-            format.update(builder, inventory, itemStack, slot);
+            format.setItemStack(itemStack);
+            inventory.setItem(slot, format.getItemStack(inventory, builder));
             return;
         }
 
