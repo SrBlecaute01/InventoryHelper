@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-public interface PaginatedItemUpdater<T extends InventoryItem> {
+public interface PaginatedItemUpdater<T extends InventoryItem> extends ItemUpdater<T> {
 
     void update(@NotNull InventoryBuilder<T> builder,
                 @NotNull Inventory inventory,

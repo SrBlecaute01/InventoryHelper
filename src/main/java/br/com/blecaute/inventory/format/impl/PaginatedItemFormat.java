@@ -1,6 +1,7 @@
 package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
+import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.callback.PaginatedItemCallback;
 import br.com.blecaute.inventory.configuration.PaginatedConfiguration;
 import br.com.blecaute.inventory.event.PaginatedItemEvent;
@@ -130,15 +131,16 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
         }
     }
 
-/*
     @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @Nullable ItemStack itemStack) {
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                       @Nullable ItemStack itemStack, int slot) {
+
         validate(builder, inventory);
 
-        SimpleItemFormat<T> format = slots.get();
+        SimpleItemFormat<T> format = slots.get(slot);
         if (format != null) {
-            format.setItemStack(itemStack);
-            inventory.setItem(slot, format.getItemStack(inventory, builder));
+            format.update(builder, inventory, itemStack, slot);
+            return;
         }
 
         List<SimpleItemFormat<T>> formats = pages.get(builder.getCurrentPage());
@@ -150,12 +152,11 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
             slots.put(slot, format);
         }
     }
-*/
 
-/*
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                       @Nullable ItemCallback<T> callback, @NotNull ItemStack itemStack) {
+                       @Nullable ItemCallback<T> callback, @Nullable ItemStack itemStack,
+                       int slot) {
 
         update(builder, inventory, itemStack, slot);
 
@@ -164,7 +165,6 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
             format.setCallBack(callback);
         }
     }
-*/
 
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @NotNull Collection<ItemStack> items) {
@@ -210,5 +210,4 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
         PaginatedItemFormat<?> that = (PaginatedItemFormat<?>) o;
         return this.items.equals(that.items);
     }
-
 }

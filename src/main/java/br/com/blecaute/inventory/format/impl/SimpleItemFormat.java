@@ -42,7 +42,9 @@ public class SimpleItemFormat<T extends InventoryItem> implements SimpleFormat<T
     }
 
     @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @Nullable ItemStack itemStack) {
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                       @Nullable ItemStack itemStack, int slot) {
+
         Validate.notNull(builder, "builder cannot be null");
         Validate.notNull(inventory, "inventory cannot be null");
 
@@ -53,9 +55,10 @@ public class SimpleItemFormat<T extends InventoryItem> implements SimpleFormat<T
 
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                       @Nullable ItemCallback<T> callback, @Nullable ItemStack itemStack) {
+                       @Nullable ItemCallback<T> callback, @Nullable ItemStack itemStack,
+                       int slot) {
 
-        update(builder, inventory, itemStack);
+        update(builder, inventory, itemStack, slot);
 
         this.callBack = callback;
     }

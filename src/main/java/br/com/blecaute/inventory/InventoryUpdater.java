@@ -58,7 +58,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
 
         InventoryFormat<T> format = this.getFormat(slot);
         if (format != null) {
-            getItemUpdater(format).update(builder, getInventory(), item);
+            getItemUpdater(format).update(builder, getInventory(), item, slot);
             return;
         }
 
@@ -74,7 +74,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
 
         InventoryFormat<T> format = this.getFormat(slot);
         if (format != null) {
-            getItemUpdater(format).update(builder, getInventory(), callback, item);
+            getItemUpdater(format).update(builder, getInventory(), callback, item, slot);
             return;
         }
 
@@ -100,7 +100,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
 
         InventoryFormat<T> format = this.getFormat(slot);
         if (format != null) {
-            getObjectUpdater(format).update(builder, getInventory(), object);
+            getObjectUpdater(format).update(builder, getInventory(), object, slot);
             return;
         }
 
@@ -116,7 +116,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
 
         InventoryFormat<T> format = this.getFormat(slot);
         if (format != null) {
-            getObjectUpdater(format).update(builder, getInventory(), callback, object);
+            getObjectUpdater(format).update(builder, getInventory(), callback, object, slot);
             return;
         }
 

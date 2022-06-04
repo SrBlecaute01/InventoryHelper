@@ -12,11 +12,13 @@ public interface ItemUpdater<T extends InventoryItem> {
 
     void update(@NotNull InventoryBuilder<T> builder,
                 @NotNull Inventory inventory,
-                @Nullable ItemStack itemStack);
+                @Nullable ItemStack itemStack,
+                int slot);
 
     void update(@NotNull InventoryBuilder<T> builder,
                 @NotNull Inventory inventory,
                 @Nullable ItemCallback<T> callback,
-                @Nullable ItemStack itemStack);
+                @Nullable ItemStack itemStack,
+                int slot);
 
 }

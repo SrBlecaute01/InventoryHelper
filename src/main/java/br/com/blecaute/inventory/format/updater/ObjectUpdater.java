@@ -10,9 +10,9 @@ import org.jetbrains.annotations.Nullable;
 public interface ObjectUpdater<T extends InventoryItem> extends ItemUpdater<T> {
 
     void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                @NotNull T object);
+                @NotNull T object, int slot);
 
     void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                @Nullable ObjectCallback<T> callback, @NotNull T object);
+                @Nullable ObjectCallback<T> callback, @NotNull T object, int slot);
 
 }

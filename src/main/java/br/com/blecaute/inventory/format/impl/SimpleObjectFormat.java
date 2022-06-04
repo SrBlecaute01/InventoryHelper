@@ -50,7 +50,8 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
     }
 
     @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @Nullable ItemStack itemStack) {
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
+                       @Nullable ItemStack itemStack, int slot) {
         validate(builder, inventory);
 
         this.icon = itemStack;
@@ -60,15 +61,16 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
 
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                       @Nullable ItemCallback<T> callback, @Nullable ItemStack itemStack) {
+                       @Nullable ItemCallback<T> callback, @Nullable ItemStack itemStack,
+                       int slot) {
 
-        update(builder, inventory, itemStack);
+        update(builder, inventory, itemStack, slot);
 
         this.callBack = callback != null ? callback::accept : null;
     }
 
     @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @NotNull T object) {
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @NotNull T object, int slot) {
         validate(builder, inventory);
         Validate.notNull(object, "object cannot be null");
 
@@ -80,9 +82,9 @@ public class SimpleObjectFormat<T extends InventoryItem> implements SimpleFormat
 
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                       @Nullable ObjectCallback<T> callback, @NotNull T object) {
+                       @Nullable ObjectCallback<T> callback, @NotNull T object, int slot) {
 
-        update(builder, inventory, object);
+        update(builder, inventory, object, slot);
 
         this.callBack = callback;
     }
