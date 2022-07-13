@@ -1,7 +1,8 @@
 package br.com.blecaute.inventory;
 
-import br.com.blecaute.inventory.callback.ItemCallback;
-import br.com.blecaute.inventory.callback.ObjectCallback;
+import br.com.blecaute.inventory.callback.*;
+import br.com.blecaute.inventory.configuration.InventoryConfiguration;
+import br.com.blecaute.inventory.configuration.PaginatedConfiguration;
 import br.com.blecaute.inventory.enums.ButtonType;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
@@ -10,23 +11,30 @@ import br.com.blecaute.inventory.format.impl.PaginatedItemFormat;
 import br.com.blecaute.inventory.format.impl.PaginatedObjectFormat;
 import br.com.blecaute.inventory.format.impl.SimpleObjectFormat;
 import br.com.blecaute.inventory.format.impl.SimpleItemFormat;
+import br.com.blecaute.inventory.handler.UpdateHandler;
 import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
+import br.com.blecaute.inventory.util.Pair;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -37,44 +45,101 @@ import java.util.function.Function;
 @Getter
 public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
-    @Getter(AccessLevel.NONE) private final String inventoryName;
-    @Getter(AccessLevel.NONE) private Inventory inventory;
+    private InventoryConfiguration configuration;
 
-    @Getter(AccessLevel.NONE) private Function<Integer, Boolean> skipFunction;
-
-    private int startSlot = 0;
-    private int exitSlot;
-
-    private int pageSize = 0;
-    private int currentPage = 1;
+    @Getter(AccessLevel.PROTECTED)
+    private Inventory inventory;
 
     private InventoryProperty properties = new InventoryProperty();
+
+    @Getter(AccessLevel.PROTECTED)
+    private Set<InventoryFormat<T>> formats = ConcurrentHashMap.newKeySet();
+
+    @Getter(AccessLevel.PROTECTED)
+    private InventoryUpdater<T> updater = InventoryUpdater.of(this);
+
+    @Getter(AccessLevel.PROTECTED)
+    private Set<UpdateHandler<T>> updateHandlers = new LinkedHashSet<>();
+
+    @Getter(AccessLevel.PRIVATE)
     private Map<ButtonType, Pair<Integer, ItemStack>> buttons = new EnumMap<>(ButtonType.class);
-    private Set<InventoryFormat<T>> formats = new LinkedHashSet<>();
+
+    private int currentPage = 1;
+
+    @Deprecated @Getter(AccessLevel.PRIVATE)
+    private Function<Integer, Boolean> skipFunction;
+
+    @Deprecated
+    private int startSlot = 0;
+
+    @Deprecated
+    private int exitSlot;
+
+    @Deprecated
+    private int pageSize = 0;
 
     /**
-     * Create instance of @{@link InventoryBuilder}
+     * Create a new InventoryBuilder with the given title and lines.
      *
-     * @param name  The name of @{@link Inventory}
-     * @param lines The lines of @{@link Inventory}
+     * @param title The title
+     * @param lines The amount of lines
      */
-    public InventoryBuilder(String name, int lines) {
+    public InventoryBuilder(@NotNull String title, int lines) {
+        this(new InventoryConfiguration(title, lines));
+    }
+
+    /**
+     * Create a new InventoryBuilder with the given configuration.
+     *
+     * @param configuration The InventoryConfiguration
+     */
+    public InventoryBuilder(@NotNull InventoryConfiguration configuration) {
+        Validate.notNull(configuration, "Inventory configuration cannot be null");
+        Validate.notNull(configuration.getTitle(), "Inventory title cannot be null");
+
         if (!InventoryHelper.isEnabled()) {
             throw new InventoryBuilderException("The InventoryHelper must be enabled");
         }
 
-        int size = Math.min(6, Math.max(1, lines)) * 9;
-        this.inventoryName = name.replace("&", "§");
-        this.exitSlot = size;
-        this.inventory = createInventory(size);
+        this.configuration = configuration;
+        this.exitSlot = Math.min(6, Math.max(1, configuration.getLines())) * 9;
+        this.inventory = createInventory();
+    }
+
+    /**
+     * Create a new InventoryBuilder with the given title and lines.
+     *
+     * @param title The title
+     * @param lines The amount of lines
+     * @param <T> The type of InventoryBuilder
+     *
+     * @return The InventoryBuilder
+     */
+    @Contract("_, _ -> new")
+    public static <T extends InventoryItem> @NotNull InventoryBuilder<T> of(@NotNull String title, int lines) {
+        return new InventoryBuilder<T>(title, lines);
+    }
+
+    /**
+     * Create a new InventoryBuilder with the given configuration.
+     *
+     * @param configuration The InventoryConfiguration
+     * @param <T> The type of InventoryBuilder
+     *
+     * @return The InventoryBuilder
+     */
+    public static <T extends InventoryItem> @NotNull InventoryBuilder<T> of(@NotNull InventoryConfiguration configuration) {
+        return new InventoryBuilder<T>(configuration);
     }
 
     /**
      * Set number of objects on each page.
      *
-     * @param size  The size
-     * @return This @{@link InventoryBuilder}
+     * @param size The number of objects
+     *
+     * @return This InventoryBuilder
      */
+    @Deprecated
     public InventoryBuilder<T> withPageSize(int size)  {
         this.pageSize = size;
         return this;
@@ -83,9 +148,11 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     /**
      * Set slot to start the place of items.
      *
-     * @param start The slot
-     * @return This @{@link InventoryBuilder}
+     * @param start The slot to start the place of items
+     *
+     * @return This InventoryBuilder
      */
+    @Deprecated
     public InventoryBuilder<T> withStart(int start) {
         this.startSlot = start;
         return this;
@@ -94,9 +161,11 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     /**
      * Set slot to stop place of items.
      *
-     * @param exit  The slot.
-     * @return This @{@link InventoryBuilder}
+     * @param exit The slot to stop place of items
+     *
+     * @return This InventoryBuilder
      */
+    @Deprecated
     public InventoryBuilder<T> withExit(int exit) {
         this.exitSlot = exit;
         return this;
@@ -105,9 +174,11 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     /**
      * Skip placing items in these slots.
      *
-     * @param skip The slots
-     * @return This @{@link InventoryBuilder}
+     * @param skip The slots to skip
+     *
+     * @return This InventoryBuilder
      */
+    @Deprecated
     public InventoryBuilder<T> withSkip(int... skip) {
         this.skipFunction = integer -> Arrays.stream(skip).anyMatch(slot -> slot == integer);
         return this;
@@ -116,25 +187,72 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     /**
      * Skip placing items in these slots.
      *
-     * @param skip The @{@link Function} to check slot.
-     * @return This @{@link InventoryBuilder}
+     * @param skip The Function to check slots
+     *
+     * @return This InventoryBuilder
      */
+    @Deprecated
     public InventoryBuilder<T> withSkip(@Nullable Function<Integer, Boolean> skip) {
         this.skipFunction = skip;
         return this;
     }
 
     /**
-     * Set item in @{@link Inventory}
+     * Update inventory with given time.
      *
-     * @param slot      The slot
-     * @param itemStack The @{@link ItemStack}
-     * @param callBack  The @{@link ItemCallback}
+     * @param seconds The seconds to update
+     * @param callback The UpdateCallback
      *
-     * @return This @{@link InventoryBuilder}
+     * @return The InventoryBuilder
      */
-    public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
+    public InventoryBuilder<T> withUpdate(long seconds, @NotNull UpdateCallback<T> callback) {
+        return withUpdate(seconds, TimeUnit.SECONDS, callback);
+    }
 
+    /**
+     * Update inventory with given time.
+     *
+     * @param time The time to update
+     * @param unit The TimeUnit of time
+     * @param callback The UpdateCallback
+     *
+     * @return The InventoryBuilder
+     */
+    public InventoryBuilder<T> withUpdate(long time, @NotNull TimeUnit unit, @NotNull UpdateCallback<T> callback) {
+        Validate.isTrue(time > 0, "time must be greater than 0");
+        Validate.notNull(unit, "unit cannot be null");
+        Validate.notNull(callback, "callback cannot be null");
+
+        this.updateHandlers.add(new UpdateHandler<>(time, unit, callback));
+        return this;
+    }
+
+    /**
+     * Set ItemStack in Inventory
+     *
+     * @param slot The slot to set
+     * @param itemStack The ItemStack to set
+     *
+     * @return This InventoryBuilder
+     */
+    public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack) {
+        if (slot >= 0) {
+            addFormat(new SimpleItemFormat<>(slot, itemStack, null));
+        }
+
+        return this;
+    }
+
+    /**
+     * Set ItemStack in Inventory
+     *
+     * @param slot The slot to set
+     * @param itemStack The ItemStack to set
+     * @param callBack The ItemCallback
+     *
+     * @return This InventoryBuilder
+     */
+    public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack, @NotNull ItemCallback<T> callBack) {
         if (slot >= 0) {
             addFormat(new SimpleItemFormat<>(slot, itemStack, callBack));
         }
@@ -143,157 +261,251 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     }
 
     /**
-     * Set items in @{@link Inventory} with pagination
+     * Set items in Inventory with pagination
      *
-     * @param items The array of @{@link ItemStack}
-     * @param callBack The @{@link ItemCallback}
-     * @return This @{@link InventoryBuilder}
+     * @param items The array of ItemStack
+     * @param callBack The ItemCallback
+     *
+     * @return This InventoryBuilder
      */
-    public InventoryBuilder<T> withItems(@NotNull ItemStack[] items, @Nullable ItemCallback<T> callBack) {
+    @Deprecated
+    public InventoryBuilder<T> withItems(@NotNull ItemStack[] items, @Nullable PaginatedItemCallback<T> callBack) {
         return withItems(Arrays.asList(items), callBack);
     }
 
     /**
-     * Set items in @{@link Inventory} with pagination
+     * Set items in Inventory with pagination
      *
-     * @param items The collection of @{@link ItemStack}
-     * @param callBack The @{@link ItemCallback}
-     * @return This @{@link InventoryBuilder}
+     * @param items The collection of ItemStack
+     * @param callback The ItemCallback
+     *
+     * @return This InventoryBuilder
      */
-    public InventoryBuilder<T> withItems(@NotNull Collection<ItemStack> items, @Nullable ItemCallback<T> callBack) {
-        return withItems(new ArrayList<>(items), callBack);
+    @Deprecated
+    public InventoryBuilder<T> withItems(@NotNull Collection<ItemStack> items, @Nullable PaginatedItemCallback<T> callback) {
+        PaginatedConfiguration configuration = PaginatedConfiguration.builder(String.valueOf(this.startSlot))
+                .size(this.pageSize).start(this.startSlot).end(this.exitSlot)
+                .validator(skipFunction != null ? skipFunction::apply : null)
+                .build();
+
+        return withItems(configuration, items, callback);
     }
 
     /**
-     * Set items in @{@link Inventory} with pagination
+     * Set items in Inventory with given pagination configuration
      *
-     * @param items     The list of @{@link ItemStack}
-     * @param callBack  The @{@link ItemCallback}
+     * @param configuration The PaginatedConfiguration
+     * @param items The array of ItemStack
      *
-     * @return This @{@link InventoryBuilder}
+     * @return This InventoryBuilder
      */
-    public InventoryBuilder<T> withItems(@NotNull List<ItemStack> items, @Nullable ItemCallback<T> callBack) {
-        addFormat(new PaginatedItemFormat<>(items, callBack));
-        return this;
+    public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration, @NotNull ItemStack[] items) {
+        return withItems(configuration, items, null);
     }
 
     /**
-     * Set item in @{@link Inventory} with @{@link InventoryItem}
+     * Set items in Inventory with given pagination configuration
      *
-     * @param slot      The slot
-     * @param value     The @{@link InventoryItem}
-     * @param callBack  The @{@link ItemCallback}
+     * @param configuration The PaginatedConfiguration
+     * @param items The array of ItemStack
+     * @param callback The ItemCallback
      *
-     * @return This @{@link InventoryBuilder}
+     * @return This InventoryBuilder
      */
-    public InventoryBuilder<T> withObject(int slot, @NotNull T value, @Nullable ObjectCallback<T> callBack) {
+    public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration, @NotNull ItemStack[] items,
+                                         @Nullable PaginatedItemCallback<T> callback) {
 
-        if (slot >= 0) {
-            addFormat(new SimpleObjectFormat<>(slot, value, callBack));
+        if (configuration.getStart() >= 0) {
+            this.addFormat(new PaginatedItemFormat<T>(configuration, items, callback));
         }
 
         return this;
     }
 
     /**
-     * Set items in @{@link Inventory} with pagination
+     * Set items in Inventory with given pagination configuration
      *
-     * @param objects The array of @{@link InventoryItem}
-     * @param callBack The @{@link ObjectCallback}
-     * @return This @{@link InventoryBuilder}
+     * @param configuration The PaginatedConfiguration
+     * @param items The collection of ItemStack
+     *
+     * @return This InventoryBuilder
      */
-    public InventoryBuilder<T> withObjects(@NotNull T[] objects, @Nullable ObjectCallback<T> callBack) {
-        return withObjects(Arrays.asList(objects), callBack);
+    public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration, @NotNull Collection<ItemStack> items) {
+        return withItems(configuration, items, null);
     }
 
     /**
-     * Set items in @{@link Inventory} with pagination
+     * Set items in Inventory with given pagination configuration
      *
-     * @param objects The collection of @{@link InventoryItem}
-     * @param callBack The @{@link ObjectCallback}
-     * @return This @{@link InventoryBuilder}
+     * @param configuration The PaginatedConfiguration
+     * @param items The collection of ItemStack
+     * @param callback The PaginatedItemCallback
+     *
+     * @return This InventoryBuilder
      */
-    public InventoryBuilder<T> withObjects(@NotNull Collection<T> objects, @Nullable ObjectCallback<T> callBack) {
-        return withObjects(new ArrayList<>(objects), callBack);
-    }
+    public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration, @NotNull Collection<ItemStack> items,
+                                         @Nullable PaginatedItemCallback<T> callback) {
 
-    /**
-     * Set items in @{@link Inventory} with pagination
-     *
-     * @param objects   The list of objects
-     * @param callBack  The @{@link ObjectCallback}
-     *
-     * @return This @{@link InventoryBuilder}
-     */
-    public InventoryBuilder<T> withObjects(@NotNull List<T> objects, @Nullable ObjectCallback<T> callBack) {
-        addFormat(new PaginatedObjectFormat<>(objects, callBack));
+        if (configuration.getStart() >= 0) {
+            this.addFormat(new PaginatedItemFormat<T>(configuration, items, callback));
+        }
+
         return this;
     }
 
     /**
-     * Set @{@link ButtonType}
+     * Set items in Inventory with given object
      *
-     * @param type      The @{@link ButtonType}
-     * @param slot      The slot
-     * @param itemStack The @{@link ItemStack}
+     * @param slot The slot to set
+     * @param value The object to set
      *
-     * @return This @{@link InventoryBuilder}
+     * @return This InventoryBuilder
+     */
+    public InventoryBuilder<T> withObject(int slot, @NotNull T value) {
+        return withObject(slot, value, null);
+    }
+
+    /**
+     * Set items in Inventory with given object
+     *
+     * @param slot The slot to set
+     * @param value The object to set
+     * @param callback The ObjectCallback
+     *
+     * @return This InventoryBuilder
+     */
+    public InventoryBuilder<T> withObject(int slot, @NotNull T value, @Nullable ObjectCallback<T> callback) {
+        if (slot >= 0) {
+            addFormat(new SimpleObjectFormat<>(slot, value, callback));
+        }
+
+        return this;
+    }
+
+    /**
+     * Set items in Inventory with pagination and given object
+     *
+     * @param objects The array of objects
+     * @param callBack The PaginatedObjectCallback
+     *
+     * @return This InventoryBuilder
+     */
+    @Deprecated
+    public InventoryBuilder<T> withObjects(@NotNull T[] objects, @Nullable PaginatedObjectCallback<T> callBack) {
+        PaginatedConfiguration configuration = PaginatedConfiguration.builder(String.valueOf(this.startSlot))
+                .size(this.pageSize).start(this.startSlot).end(this.exitSlot)
+                .validator(skipFunction != null ? skipFunction::apply : null)
+                .build();
+
+        return withObjects(configuration, objects, callBack);
+    }
+
+    /**
+     * Set items in Inventory with pagination and given object
+     *
+     * @param objects The collection of objects
+     * @param callback The PaginatedObjectCallback
+     *
+     * @return This InventoryBuilder
+     */
+    @Deprecated
+    public InventoryBuilder<T> withObjects(@NotNull Collection<T> objects, @Nullable PaginatedObjectCallback<T> callback) {
+        PaginatedConfiguration configuration = PaginatedConfiguration.builder(String.valueOf(this.startSlot))
+                .size(this.pageSize).start(this.startSlot).end(this.exitSlot)
+                .validator(skipFunction != null ? skipFunction::apply : null)
+                .build();
+
+        return withObjects(configuration, objects, callback);
+    }
+
+    /**
+     * Set items in Inventory with pagination with given objects and configuration
+     *
+     * @param configuration The PaginatedConfiguration
+     * @param objects The array of objects
+     * @param callback The PaginatedObjectCallback
+     *
+     * @return This InventoryBuilder
+     */
+    public InventoryBuilder<T> withObjects(@NotNull PaginatedConfiguration configuration, @NotNull T[] objects,
+                                           @Nullable PaginatedObjectCallback<T> callback) {
+
+        if (configuration.getStart() >= 0) {
+            this.addFormat(new PaginatedObjectFormat<T>(configuration, objects, callback));
+        }
+
+        return this;
+    }
+
+    /**
+     * Set items in Inventory with pagination with given objects and configuration
+     *
+     * @param configuration The PaginatedConfiguration
+     * @param objects The collection of objects
+     * @param callback The PaginatedObjectCallback
+     *
+     * @return This InventoryBuilder
+     */
+    public InventoryBuilder<T> withObjects(@NotNull PaginatedConfiguration configuration, @NotNull Collection<T> objects,
+                                           @Nullable PaginatedObjectCallback<T> callback) {
+
+        if (configuration.getStart() >= 0) {
+            this.addFormat(new PaginatedObjectFormat<T>(configuration, objects, callback));
+        }
+
+        return this;
+    }
+
+    /**
+     * Set button in inventory
+     *
+     * @param type The type of button
+     * @param slot  The slot to set
+     * @param itemStack The ItemStack to set
+     *
+     * @return This InventoryBuilder
      */
     public InventoryBuilder<T> withButton(@NotNull ButtonType type, int slot, @NotNull ItemStack itemStack) {
-        buttons.put(type, Pair.of(slot, itemStack));
+        if (slot >= 0) {
+            buttons.put(type, Pair.of(slot, itemStack));
+        }
+
         return this;
     }
 
     /**
-     * Add property to @{@link InventoryBuilder}
+     * Add property to Inventory
      *
-     * @param key       The key.
-     * @param object    The object.
+     * @param key The key of property
+     * @param object The object of property
      *
-     * @return This @{@link InventoryBuilder}
+     * @return This InventoryBuilder
      */
     public InventoryBuilder<T> withProperty(@NotNull String key, @NotNull Object object) {
+        Validate.notNull(key, "key cannot be null");
+        Validate.notNull(object, "object cannot be null");
+
         this.properties.set(key, object);
         return this;
     }
 
     /**
-     * Set properties of @{@link InventoryBuilder}
+     * Set properties of Inventory
      *
      * @param properties The properties.
      *
-     * @return This @{@link InventoryBuilder}
+     * @return This InventoryBuilder
      */
     public InventoryBuilder<T> withProperties(@NotNull InventoryProperty properties) {
+        Validate.notNull(properties, "properties cannot be null");
         this.properties = properties;
         return this;
     }
 
     /**
-     * Clone @{@link InventoryBuilder}
-     * @return The clone of this @{@link InventoryBuilder}
-     */
-    @Override @SuppressWarnings("unchecked")
-    public InventoryBuilder<T> clone() {
-        try {
-            InventoryBuilder<T> clone = (InventoryBuilder<T>) super.clone();
-
-            clone.inventory = clone.createInventory(this.inventory.getSize());
-            clone.properties = this.properties.clone();
-            clone.buttons = new EnumMap<>(this.buttons);
-            clone.formats = new LinkedHashSet<>(this.formats);
-
-            return clone;
-
-        } catch (Exception exception) {
-            throw new InventoryBuilderException(exception);
-        }
-
-    }
-
-    /**
-     * Format @{@link Inventory}
-     * @return This @{@link InventoryBuilder}
+     * Format Inventory
+     *
+     * @return This InventoryBuilder
      */
     public InventoryBuilder<T> format() {
         inventory.clear();
@@ -302,9 +514,9 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
             if (format instanceof PaginatedFormat) {
                 PaginatedFormat<T> paginated = (PaginatedFormat<T>) format;
-                paginated.format(inventory, this, skipFunction);
-                createPages(paginated.getSize());
+                paginated.format(inventory, this);
 
+                createPages(paginated.getSize());
                 continue;
             }
 
@@ -315,15 +527,18 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     }
 
     /**
-     * Open @{@link Inventory} to player
+     * Open Inventory to player
      *
-     * @param player The @{@link Player}
+     * @param player The Player
      *
-     * @return This @{@link InventoryBuilder}
+     * @return This InventoryBuilder
      */
-    public InventoryBuilder<T> open(Player player) {
+    public InventoryBuilder<T> open(@NotNull Player player) {
+        Validate.notNull(player, "player cannot be null");
+
         updateInventory();
         player.openInventory(inventory);
+        registryUpdates();
 
         return this;
     }
@@ -331,24 +546,65 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     /**
      * Build inventory and open it to players.
      *
-     * @param players he @{@link Player}
+     * @param players The players
      *
-     * @return The @{@link Inventory}
+     * @return The Inventory
      */
-    public Inventory build(Player... players) {
+    public Inventory build(Player @NotNull ... players) {
+        Validate.notNull(players, "players cannot be null");
         updateInventory();
 
         for (Player player : players) {
             player.openInventory(inventory);
         }
 
+        registryUpdates();
+
         return this.inventory;
     }
 
-    private void addFormat(InventoryFormat<T> format) {
+    /**
+     * Clone this InventoryBuilder
+     *
+     * @return The cloned InventoryBuilder
+     */
+    @Override @SuppressWarnings("unchecked")
+    public InventoryBuilder<T> clone() {
+        try {
+            InventoryBuilder<T> clone = (InventoryBuilder<T>) super.clone();
+
+            clone.configuration = this.configuration.clone();
+            clone.inventory = clone.createInventory();
+            clone.properties = this.properties.clone();
+            clone.buttons = new EnumMap<>(this.buttons);
+            clone.updater = new InventoryUpdater<>(clone);
+            clone.formats = new LinkedHashSet<>(this.formats);
+            clone.updateHandlers = new LinkedHashSet<>(this.updateHandlers);
+
+            return clone;
+
+        } catch (Exception exception) {
+            throw new InventoryBuilderException(exception);
+        }
+    }
+
+    protected void addFormat(InventoryFormat<T> format) {
         if (!this.formats.add(format)) {
             this.formats.remove(format);
             this.formats.add(format);
+        }
+    }
+
+    protected void handleUpdates(int seconds) {
+        try {
+            for (UpdateHandler<T> handler : updateHandlers) {
+                if (handler.canUpdate(seconds)) {
+                    handler.call(this.updater);
+                }
+            }
+
+        } catch (Exception exception) {
+            throw new InventoryBuilderException(exception);
         }
     }
 
@@ -362,25 +618,36 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         }
     }
 
+    private void registryUpdates() {
+        if (this.updateHandlers.size() > 0) {
+            InventoryHelper.getManager().register(this);
+        }
+    }
+
     private void createPages(int size) {
         if(this.currentPage > 1 && buttons.containsKey(ButtonType.PREVIOUS_PAGE)) {
             Pair<Integer, ItemStack> pair = buttons.get(ButtonType.PREVIOUS_PAGE);
             inventory.setItem(pair.getKey(), pair.getValue());
         }
 
-        if(this.currentPage > 0 && buttons.containsKey(ButtonType.NEXT_PAGE) && size > this.currentPage * this.pageSize) {
+        if(this.currentPage > 0 && this.pageSize > 0 &&
+                buttons.containsKey(ButtonType.NEXT_PAGE) &&
+                size > this.currentPage * this.pageSize) {
+
             Pair<Integer, ItemStack> pair = buttons.get(ButtonType.NEXT_PAGE);
             inventory.setItem(pair.getKey(), pair.getValue());
         }
     }
 
-    private Inventory createInventory(int size) {
+    private Inventory createInventory() {
+        String name = ChatColor.translateAlternateColorCodes('&', configuration.getTitle());
+        int size = Math.min(6, Math.max(1, configuration.getLines())) * 9;
+
         return Bukkit.createInventory(new CustomHolder(event -> {
-            if (event instanceof org.bukkit.event.inventory.InventoryClickEvent) {
-                org.bukkit.event.inventory.InventoryClickEvent click = (org.bukkit.event.inventory.InventoryClickEvent) event;
+            if (event instanceof InventoryClickEvent) {
+                InventoryClickEvent click = (InventoryClickEvent) event;
 
                 int slot = click.getRawSlot();
-
                 for (Map.Entry<ButtonType, Pair<Integer, ItemStack>> entry : buttons.entrySet()) {
                     if (entry.getValue().getKey() == slot) {
                         this.currentPage = this.currentPage + entry.getKey().getValue();
@@ -398,7 +665,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
             }
 
-        }), size, inventoryName);
+        }), size, name);
     }
 
     @Data

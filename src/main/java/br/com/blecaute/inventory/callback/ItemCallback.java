@@ -4,8 +4,25 @@ import br.com.blecaute.inventory.event.ItemClickEvent;
 import br.com.blecaute.inventory.type.InventoryItem;
 
 /**
- * The interface responsible for returning the click on items.
+ * The ItemCallback is designed to process the click event
+ * of an item in inventories.
  *
- * @param <T> The type of @{@link InventoryItem}
+ * @param <T> The type of InventoryItem.
  */
-public interface ItemCallback<T extends InventoryItem> extends InventoryCallback<T, ItemClickEvent<T>> {}
+public interface ItemCallback<T extends InventoryItem> extends InventoryCallback<T, ItemClickEvent<T>> {
+
+    ItemCallback<?> EMPTY = click -> {};
+
+    /**
+     * Get an empty ItemCallback.
+     *
+     * @param <T> The type of InventoryItem.
+     *
+     * @return The empty ItemCallback.
+     */
+    @SuppressWarnings("unchecked cast")
+    static <T extends InventoryItem> ItemCallback<T> empty() {
+        return (ItemCallback<T>) EMPTY;
+    }
+
+}

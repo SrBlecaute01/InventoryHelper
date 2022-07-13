@@ -1,24 +1,46 @@
 package br.com.blecaute.inventory.property;
 
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
+import br.com.blecaute.inventory.InventoryBuilder;
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The class to save properties of @{@link InventoryBuilder}
+ */
 public class InventoryProperty implements Cloneable {
 
     private Map<String, Object> map = new HashMap<>();
 
-    @Nullable
-    @SuppressWarnings("unchecked cast")
-    public <T> T get(String key) {
+    /**
+     * Get the property
+     *
+     * @param key The key
+     *
+     * @return The property
+     */
+    @Nullable @SuppressWarnings("unchecked cast")
+    public <T> T get(@NotNull String key) {
+        Preconditions.checkNotNull(key, "key cannot be null");
+
         Object object = this.map.get(key);
         return object == null ? null : (T) object;
     }
 
+    /**
+     * Set the property
+     *
+     * @param key The key
+     * @param value The value
+     */
     public void set(@NotNull String key, @NotNull Object value) {
+        Preconditions.checkNotNull(key, "key cannot be null");
+        Preconditions.checkNotNull(value, "value cannot be null");
+
         this.map.put(key, value);
     }
 

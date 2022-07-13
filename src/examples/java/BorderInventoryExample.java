@@ -1,4 +1,6 @@
 import br.com.blecaute.inventory.InventoryBuilder;
+import br.com.blecaute.inventory.configuration.InventoryConfiguration;
+import br.com.blecaute.inventory.configuration.PaginatedConfiguration;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -28,13 +30,12 @@ public class BorderInventoryExample {
             border.add(getRandomGlass());
         }
 
-        // construindo o inventário
-        new InventoryBuilder<>("Random border", inventorySize)
-                // definindo a function que irá verificar se o slot é inválido
-                .withSkip(slot -> !isBorder(inventorySize, slot))
-                // definindo os items
-                .withItems(border, click -> event.getPlayer().sendMessage("§cVocê clicou em uma borda!"))
-                // construindo o inventário e abrindo para o jogador
+        InventoryConfiguration inventoryConfiguration = new InventoryConfiguration("Random border", inventorySize);
+        PaginatedConfiguration paginatedConfiguration = new PaginatedConfiguration("#identifier",
+                slot -> isBorder(inventorySize, slot));
+
+        InventoryBuilder.of(inventoryConfiguration)
+                .withItems(paginatedConfiguration, border, click -> event.getPlayer().sendMessage("§cVocê clicou em uma borda!"))
                 .build(event.getPlayer());
 
     }
@@ -42,18 +43,18 @@ public class BorderInventoryExample {
     public static boolean isBorder(int size, int slot) {
         // caso o inventário tiver apenas 2 linha ou menos ele não terá borda
         if (size <= 2) {
-            return false;
+            return true;
         }
 
         // verificando se o slot esa na borda superior
         if (slot >= 0 && slot <= 8) {
-            return true;
+            return false;
         }
 
         // verificando se o slot está na borda inferior
         int rows = size * 9;
         if (slot >= rows - 9 && slot < rows) {
-            return true;
+            return false;
         }
 
         // pegando a quantidade de linhas restantes
@@ -65,11 +66,11 @@ public class BorderInventoryExample {
             int leftBorder = rightBorder + 8;
             // comparando o slot com as bordas
             if (slot == rightBorder || slot == leftBorder) {
-                return true;
+                return false;
             }
         }
 
-        return false;
+        return true;
     }
 
     // Método para gerar um vidro colorido aleatório

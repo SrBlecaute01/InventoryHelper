@@ -1,56 +1,124 @@
 package br.com.blecaute.inventory.event;
 
+import br.com.blecaute.inventory.InventoryUpdater;
 import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.InventoryBuilder;
+import com.google.common.base.Preconditions;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import org.apache.commons.lang3.Validate;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represent the click event of @{@link InventoryBuilder}
+ * Represent the click event of @{@link InventoryBuilder}.
  */
 @Data
-public class InventoryEvent<T extends InventoryItem> {
+public abstract class InventoryEvent<T extends InventoryItem> {
 
-    /**
-     * The click event
-     */
+    @NotNull private final InventoryBuilder<T> builder;
     @NotNull private final InventoryClickEvent event;
 
-    /**
-     * The clicked item
-     */
-    @NotNull private final ItemStack itemStack;
+    @Getter(AccessLevel.PROTECTED)
+    protected final InventoryUpdater<T> updater;
 
     /**
-     * The properties of @{@link InventoryBuilder}
+     * Create a new InventoryEvent with the given InventoryBuilder and InventoryClickEvent.
+     *
+     * @param builder The @{@link InventoryBuilder}.
+     * @param event The @{@link InventoryClickEvent}.
      */
-    @NotNull private final InventoryProperty properties;
+    public InventoryEvent(@NotNull InventoryBuilder<T> builder, @NotNull InventoryClickEvent event) {
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(event, "event cannot be null");
+
+        this.builder = builder;
+        this.event = event;
+        this.updater = InventoryUpdater.of(builder);
+    }
 
     /**
-     * The object
+     * Get index of clicked slot.
      *
-     * @deprecated Please use this parameter
-     * only in @{@link ObjectClickEvent}
-     *
+     * @return index of clicked slot.
      */
-    private final T object;
+    public int getSlot() {
+        return event.getRawSlot();
+    }
 
     /**
-     * The object of @{@link InventoryItem}
+     * Get player who clicked.
      *
-     * @deprecated Please use this method
-     * only in @{@link ObjectClickEvent}
+     * @return The @{@link Player}.
+     */
+    public @NotNull Player getPlayer() {
+        return (Player) event.getWhoClicked();
+    }
+
+    /**
+     * Send message to who clicked.
      *
+     * @param message The message.
+     */
+    public void sendMessage(@NotNull String message) {
+        Preconditions.checkNotNull(message, "message cannot be null");
+        event.getWhoClicked().sendMessage(message);
+    }
+
+    /**
+     * Get clicked @{@link Inventory}.
+     *
+     * @return The @{@link Inventory}.
+     */
+    public @NotNull Inventory getInventory() {
+        return event.getInventory();
+    }
+
+    /**
+     * Get clicked @{@link ItemStack}.
+     *
+     * @return The @{@link ItemStack}.
+     */
+    public @NotNull ItemStack getItemStack() {
+        return event.getCurrentItem();
+    }
+
+    /**
+     * Get the properties of @{@link Inventory}.
+     *
+     * @return The @{@link InventoryProperty}.
+     */
+    public @NotNull InventoryProperty getProperties() {
+        return builder.getProperties();
+    }
+
+    /**
+     * Get property of @{@link Inventory}.
+     *
+     * @param key The key of property.
+     * @param <S> The type of property.
+     *
+     * @return The property.
      */
     @Nullable
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval(inVersion = "1.3.2")
-    public T getObject() {
-        return object;
+    public <S> S getProperty(@NotNull String key) {
+        return builder.getProperties().get(key);
     }
+
+    /**
+     * Set property in @{@link Inventory}.
+     *
+     * @param key The key of property.
+     * @param value The value of property.
+     */
+    public void setProperty(@NotNull String key, @NotNull Object value) {
+        builder.getProperties().set(key, value);
+    }
+
 }
