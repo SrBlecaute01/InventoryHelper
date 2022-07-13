@@ -113,15 +113,17 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
         if (values == null) return;
 
         SlotValidator validator = configuration.getValidator();
-        for(int index = 0; index < values.size() && start < exit; start++) {
+        for (int index = 0; index < values.size() && start < exit; start++) {
             SimpleItemFormat<T> format = values.get(index);
             if (format.getSlot() >= 0) {
                 inventory.setItem(start, format.getItemStack());
+                slots.put(start, format);
                 index++;
+
                 continue;
             }
 
-            if(validator != null && validator.validate(start)) continue;
+            if (validator != null && validator.validate(start)) continue;
 
             ItemStack item = format.getItemStack();
             inventory.setItem(start, item);

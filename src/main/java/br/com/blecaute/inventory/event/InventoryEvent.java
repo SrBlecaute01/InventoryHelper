@@ -4,6 +4,7 @@ import br.com.blecaute.inventory.InventoryUpdater;
 import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.InventoryBuilder;
+import com.google.common.base.Preconditions;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -13,9 +14,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Represent the click event of @{@link InventoryBuilder}
+ * Represent the click event of @{@link InventoryBuilder}.
  */
 @Data
 public abstract class InventoryEvent<T extends InventoryItem> {
@@ -27,10 +29,10 @@ public abstract class InventoryEvent<T extends InventoryItem> {
     protected final InventoryUpdater<T> updater;
 
     /**
-     * Create a new InventoryEvent with the given InventoryBuilder and InventoryClickEvent
+     * Create a new InventoryEvent with the given InventoryBuilder and InventoryClickEvent.
      *
-     * @param builder The @{@link InventoryBuilder}
-     * @param event The @{@link InventoryClickEvent}
+     * @param builder The @{@link InventoryBuilder}.
+     * @param event The @{@link InventoryClickEvent}.
      */
     public InventoryEvent(@NotNull InventoryBuilder<T> builder, @NotNull InventoryClickEvent event) {
         Validate.notNull(builder, "builder cannot be null");
@@ -42,48 +44,81 @@ public abstract class InventoryEvent<T extends InventoryItem> {
     }
 
     /**
-     * Get index of clicked slot
+     * Get index of clicked slot.
      *
-     * @return index of clicked slot
+     * @return index of clicked slot.
      */
     public int getSlot() {
         return event.getRawSlot();
     }
 
     /**
-     * Get player who clicked
+     * Get player who clicked.
      *
-     * @return The @{@link Player}
+     * @return The @{@link Player}.
      */
     public @NotNull Player getPlayer() {
         return (Player) event.getWhoClicked();
     }
 
     /**
-     * Get clicked @{@link Inventory}
+     * Send message to who clicked.
      *
-     * @return The @{@link Inventory}
+     * @param message The message.
+     */
+    public void sendMessage(@NotNull String message) {
+        Preconditions.checkNotNull(message, "message cannot be null");
+        event.getWhoClicked().sendMessage(message);
+    }
+
+    /**
+     * Get clicked @{@link Inventory}.
+     *
+     * @return The @{@link Inventory}.
      */
     public @NotNull Inventory getInventory() {
         return event.getInventory();
     }
 
     /**
-     * Get clicked @{@link ItemStack}
+     * Get clicked @{@link ItemStack}.
      *
-     * @return The @{@link ItemStack}
+     * @return The @{@link ItemStack}.
      */
     public @NotNull ItemStack getItemStack() {
         return event.getCurrentItem();
     }
 
     /**
-     * Get the properties of @{@link Inventory}
+     * Get the properties of @{@link Inventory}.
      *
-     * @return The @{@link InventoryProperty}
+     * @return The @{@link InventoryProperty}.
      */
     public @NotNull InventoryProperty getProperties() {
         return builder.getProperties();
+    }
+
+    /**
+     * Get property of @{@link Inventory}.
+     *
+     * @param key The key of property.
+     * @param <S> The type of property.
+     *
+     * @return The property.
+     */
+    @Nullable
+    public <S> S getProperty(@NotNull String key) {
+        return builder.getProperties().get(key);
+    }
+
+    /**
+     * Set property in @{@link Inventory}.
+     *
+     * @param key The key of property.
+     * @param value The value of property.
+     */
+    public void setProperty(@NotNull String key, @NotNull Object value) {
+        builder.getProperties().set(key, value);
     }
 
 }

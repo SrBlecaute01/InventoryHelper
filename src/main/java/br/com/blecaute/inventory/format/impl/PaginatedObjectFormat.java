@@ -123,6 +123,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
             SimpleObjectFormat<T> format = values.get(index);
             if (format.getSlot() >= 0) {
                 inventory.setItem(start, format.getItemStack(inventory, builder));
+                slots.put(start, format);
                 index++;
                 continue;
             }

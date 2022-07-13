@@ -2,6 +2,7 @@ package br.com.blecaute.inventory.property;
 
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.InventoryBuilder;
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +24,9 @@ public class InventoryProperty implements Cloneable {
      * @return The property
      */
     @Nullable @SuppressWarnings("unchecked cast")
-    public <T> T get(String key) {
+    public <T> T get(@NotNull String key) {
+        Preconditions.checkNotNull(key, "key cannot be null");
+
         Object object = this.map.get(key);
         return object == null ? null : (T) object;
     }
@@ -35,6 +38,9 @@ public class InventoryProperty implements Cloneable {
      * @param value The value
      */
     public void set(@NotNull String key, @NotNull Object value) {
+        Preconditions.checkNotNull(key, "key cannot be null");
+        Preconditions.checkNotNull(value, "value cannot be null");
+
         this.map.put(key, value);
     }
 

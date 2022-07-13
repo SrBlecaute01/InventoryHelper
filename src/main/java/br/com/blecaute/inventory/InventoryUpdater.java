@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +34,8 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
     @Getter(AccessLevel.PRIVATE)
     private final InventoryBuilder<T> builder;
 
-    public static <T extends InventoryItem> InventoryUpdater<T> of(InventoryBuilder<T> builder) {
+    @Contract("_ -> new")
+    public static <T extends InventoryItem> @NotNull InventoryUpdater<T> of(InventoryBuilder<T> builder) {
         return new InventoryUpdater<>(builder);
     }
 
@@ -159,7 +161,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
     }
 
 
-    private <R> R getUpdater(InventoryFormat<T> format, Class<R> clazz) {
+    private <R> R getUpdater(@NotNull InventoryFormat<T> format, @NotNull Class<R> clazz) {
         if (clazz.isAssignableFrom(format.getClass())) {
             return clazz.cast(format);
         }
@@ -186,7 +188,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
                 .orElse(null);
     }
 
-    private PaginatedFormat<T> getFormat(String identifier) {
+    private @NotNull PaginatedFormat<T> getFormat(String identifier) {
         for (InventoryFormat<T> format : this.builder.getFormats()) {
             if (!(format instanceof PaginatedFormat)) continue;
 
