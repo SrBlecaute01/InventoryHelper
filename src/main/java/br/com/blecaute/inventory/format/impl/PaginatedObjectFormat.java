@@ -265,12 +265,14 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
         if (!(o instanceof PaginatedObjectFormat)) return false;
 
         PaginatedObjectFormat<?> that = (PaginatedObjectFormat<?>) o;
-        return this.items.equals(that.items);
+        return Objects.equals(getConfiguration(), that.getConfiguration()) &&
+                Objects.equals(callback, that.callback) &&
+                Objects.equals(items, that.items) &&
+                Objects.equals(slots, that.slots);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.items);
+        return Objects.hash(getConfiguration(), callback, items, slots);
     }
-
 }
