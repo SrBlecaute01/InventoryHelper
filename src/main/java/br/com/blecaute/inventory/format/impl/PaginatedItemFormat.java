@@ -8,7 +8,7 @@ import br.com.blecaute.inventory.event.PaginatedItemEvent;
 import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.format.updater.PaginatedItemUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
-import br.com.blecaute.inventory.validator.SlotValidator;
+import br.com.blecaute.inventory.validator.SlotInvalidator;
 import org.apache.commons.lang.Validate;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -112,7 +112,7 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
         List<SimpleItemFormat<T>> values = this.pages.get(builder.getCurrentPage());
         if (values == null) return;
 
-        SlotValidator validator = configuration.getValidator();
+        SlotInvalidator validator = configuration.getValidator();
         for (int index = 0; index < values.size() && start < exit; start++) {
             SimpleItemFormat<T> format = values.get(index);
             if (format.getSlot() >= 0) {

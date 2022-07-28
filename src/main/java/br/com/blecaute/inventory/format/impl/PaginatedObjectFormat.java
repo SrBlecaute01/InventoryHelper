@@ -10,7 +10,7 @@ import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.format.updater.PaginatedObjectUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.type.InventorySlot;
-import br.com.blecaute.inventory.validator.SlotValidator;
+import br.com.blecaute.inventory.validator.SlotInvalidator;
 import org.apache.commons.lang.Validate;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -117,7 +117,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
         List<SimpleObjectFormat<T>> values = this.pages.get(builder.getCurrentPage());
         if (values == null) return;
 
-        SlotValidator validator = configuration.getValidator();
+        SlotInvalidator validator = configuration.getValidator();
         for(int index = 0; index < values.size() && start < exit; start++) {
 
             SimpleObjectFormat<T> format = values.get(index);

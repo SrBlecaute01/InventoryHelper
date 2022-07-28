@@ -1,6 +1,6 @@
 package br.com.blecaute.inventory.configuration;
 
-import br.com.blecaute.inventory.validator.SlotValidator;
+import br.com.blecaute.inventory.validator.SlotInvalidator;
 import lombok.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +16,7 @@ public class PaginatedConfiguration {
     private final String identifier;
 
     @Builder.Default @Nullable
-    private SlotValidator validator = null;
+    private SlotInvalidator validator = null;
 
     @Builder.Default
     private int start = 0, end = 0, size = 0;
@@ -27,7 +27,7 @@ public class PaginatedConfiguration {
      * @param identifier The identifier of PaginatedConfiguration.
      * @param validator The SlotValidator to check slots of inventory.
      */
-    public PaginatedConfiguration(@NonNull String identifier, @Nullable SlotValidator validator) {
+    public PaginatedConfiguration(@NonNull String identifier, @Nullable SlotInvalidator validator) {
         this.identifier = identifier;
         this.validator = validator;
     }
