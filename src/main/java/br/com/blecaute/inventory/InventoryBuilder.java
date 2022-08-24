@@ -36,7 +36,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * A simple class for building of @{@link Inventory}.
@@ -66,18 +65,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
     private int currentPage = 1;
 
-    @Deprecated @Getter(AccessLevel.PRIVATE)
-    private Function<Integer, Boolean> skipFunction;
-
-    @Deprecated
-    private int startSlot = 0;
-
-    @Deprecated
-    private int exitSlot;
-
-    @Deprecated
-    private int pageSize = 0;
-
     /**
      * Create a new InventoryBuilder with the given title and lines.
      *
@@ -102,7 +89,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         }
 
         this.configuration = configuration;
-        this.exitSlot = Math.min(6, Math.max(1, configuration.getLines())) * 9;
         this.inventory = createInventory();
     }
 
@@ -130,71 +116,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      */
     public static <T extends InventoryItem> @NotNull InventoryBuilder<T> of(@NotNull InventoryConfiguration configuration) {
         return new InventoryBuilder<T>(configuration);
-    }
-
-    /**
-     * Set number of objects on each page.
-     *
-     * @param size The number of objects
-     *
-     * @return This InventoryBuilder
-     */
-    @Deprecated
-    public InventoryBuilder<T> withPageSize(int size)  {
-        this.pageSize = size;
-        return this;
-    }
-
-    /**
-     * Set slot to start the place of items.
-     *
-     * @param start The slot to start the place of items
-     *
-     * @return This InventoryBuilder
-     */
-    @Deprecated
-    public InventoryBuilder<T> withStart(int start) {
-        this.startSlot = start;
-        return this;
-    }
-
-    /**
-     * Set slot to stop place of items.
-     *
-     * @param exit The slot to stop place of items
-     *
-     * @return This InventoryBuilder
-     */
-    @Deprecated
-    public InventoryBuilder<T> withExit(int exit) {
-        this.exitSlot = exit;
-        return this;
-    }
-
-    /**
-     * Skip placing items in these slots.
-     *
-     * @param skip The slots to skip
-     *
-     * @return This InventoryBuilder
-     */
-    @Deprecated
-    public InventoryBuilder<T> withSkip(int... skip) {
-        this.skipFunction = integer -> Arrays.stream(skip).anyMatch(slot -> slot == integer);
-        return this;
-    }
-
-    /**
-     * Skip placing items in these slots.
-     *
-     * @param skip The Function to check slots
-     *
-     * @return This InventoryBuilder
-     */
-    @Deprecated
-    public InventoryBuilder<T> withSkip(@Nullable Function<Integer, Boolean> skip) {
-        this.skipFunction = skip;
-        return this;
     }
 
     /**
@@ -258,37 +179,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         }
 
         return this;
-    }
-
-    /**
-     * Set items in Inventory with pagination
-     *
-     * @param items The array of ItemStack
-     * @param callBack The ItemCallback
-     *
-     * @return This InventoryBuilder
-     */
-    @Deprecated
-    public InventoryBuilder<T> withItems(@NotNull ItemStack[] items, @Nullable PaginatedItemCallback<T> callBack) {
-        return withItems(Arrays.asList(items), callBack);
-    }
-
-    /**
-     * Set items in Inventory with pagination
-     *
-     * @param items The collection of ItemStack
-     * @param callback The ItemCallback
-     *
-     * @return This InventoryBuilder
-     */
-    @Deprecated
-    public InventoryBuilder<T> withItems(@NotNull Collection<ItemStack> items, @Nullable PaginatedItemCallback<T> callback) {
-        PaginatedConfiguration configuration = PaginatedConfiguration.builder(String.valueOf(this.startSlot))
-                .size(this.pageSize).start(this.startSlot).end(this.exitSlot)
-                .validator(skipFunction != null ? skipFunction::apply : null)
-                .build();
-
-        return withItems(configuration, items, callback);
     }
 
     /**
@@ -380,42 +270,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         }
 
         return this;
-    }
-
-    /**
-     * Set items in Inventory with pagination and given object
-     *
-     * @param objects The array of objects
-     * @param callBack The PaginatedObjectCallback
-     *
-     * @return This InventoryBuilder
-     */
-    @Deprecated
-    public InventoryBuilder<T> withObjects(@NotNull T[] objects, @Nullable PaginatedObjectCallback<T> callBack) {
-        PaginatedConfiguration configuration = PaginatedConfiguration.builder(String.valueOf(this.startSlot))
-                .size(this.pageSize).start(this.startSlot).end(this.exitSlot)
-                .validator(skipFunction != null ? skipFunction::apply : null)
-                .build();
-
-        return withObjects(configuration, objects, callBack);
-    }
-
-    /**
-     * Set items in Inventory with pagination and given object
-     *
-     * @param objects The collection of objects
-     * @param callback The PaginatedObjectCallback
-     *
-     * @return This InventoryBuilder
-     */
-    @Deprecated
-    public InventoryBuilder<T> withObjects(@NotNull Collection<T> objects, @Nullable PaginatedObjectCallback<T> callback) {
-        PaginatedConfiguration configuration = PaginatedConfiguration.builder(String.valueOf(this.startSlot))
-                .size(this.pageSize).start(this.startSlot).end(this.exitSlot)
-                .validator(skipFunction != null ? skipFunction::apply : null)
-                .build();
-
-        return withObjects(configuration, objects, callback);
     }
 
     /**
@@ -625,18 +479,15 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     }
 
     private void createPages(int size) {
-        if(this.currentPage > 1 && buttons.containsKey(ButtonType.PREVIOUS_PAGE)) {
+/*        if(this.currentPage > 1 && buttons.containsKey(ButtonType.PREVIOUS_PAGE)) {
             Pair<Integer, ItemStack> pair = buttons.get(ButtonType.PREVIOUS_PAGE);
             inventory.setItem(pair.getKey(), pair.getValue());
         }
 
-        if(this.currentPage > 0 && this.pageSize > 0 &&
-                buttons.containsKey(ButtonType.NEXT_PAGE) &&
-                size > this.currentPage * this.pageSize) {
-
+        if(this.currentPage > 0 && buttons.containsKey(ButtonType.NEXT_PAGE) && size > this.currentPage * this.pageSize) {
             Pair<Integer, ItemStack> pair = buttons.get(ButtonType.NEXT_PAGE);
             inventory.setItem(pair.getKey(), pair.getValue());
-        }
+        }*/
     }
 
     private Inventory createInventory() {
