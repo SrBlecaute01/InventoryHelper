@@ -1,16 +1,20 @@
 package br.com.blecaute.inventory.configuration;
 
+import br.com.blecaute.inventory.buttons.Button;
 import br.com.blecaute.inventory.validator.SlotInvalidator;
 import lombok.*;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 /**
  * The PaginatedConfiguration is designed to configure paginated inventories.
  */
-@Builder @Getter
-@AllArgsConstructor
+@Getter
+@Builder(toBuilder = true)
 @RequiredArgsConstructor
-public class PaginatedConfiguration {
+public class PaginatedConfiguration implements Configuration {
 
     @NonNull
     private final String identifier;
@@ -21,12 +25,17 @@ public class PaginatedConfiguration {
     @Builder.Default
     private int start = 0, end = 0, size = 0;
 
+    @NonNull @Singular
+    private Set<Button> buttons = new HashSet<>();
+
     /**
      * Create a new PaginatedConfiguration with the given identifier and SlotValidator.
      *
      * @param identifier The identifier of PaginatedConfiguration.
      * @param validator The SlotValidator to check slots of inventory.
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public PaginatedConfiguration(@NonNull String identifier, @Nullable SlotInvalidator validator) {
         this.identifier = identifier;
         this.validator = validator;
@@ -41,8 +50,13 @@ public class PaginatedConfiguration {
      * @param end The slot to stop place of item in inventory.
      * @param size The size of objects in each page.
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public PaginatedConfiguration(@NonNull String identifier, int start, int end, int size) {
-        this(identifier, null, start, end, size);
+        this.identifier = identifier;
+        this.start = start;
+        this.end = end;
+        this.size = size;
     }
 
     /**
@@ -54,6 +68,15 @@ public class PaginatedConfiguration {
      */
     public static PaginatedConfigurationBuilder builder(String identifier) {
         return new PaginatedConfigurationBuilder().identifier(identifier);
+    }
+
+    public static class PaginatedConfigurationBuilder {
+
+        protected PaginatedConfigurationBuilder identifier(String identifier) {
+            this.identifier = identifier;
+            return this;
+        }
+
     }
 
 }

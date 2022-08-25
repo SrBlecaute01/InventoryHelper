@@ -1,6 +1,7 @@
 package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
+import br.com.blecaute.inventory.buttons.Button;
 import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.callback.PaginatedObjectCallback;
@@ -26,11 +27,14 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
     private PaginatedObjectCallback<T> callback;
 
     private final List<SimpleObjectFormat<T>> items = new ArrayList<>();
+
     private final Map<Integer, SimpleObjectFormat<T>> slots = new HashMap<>();
     private final Map<Integer, List<SimpleObjectFormat<T>>> pages = new HashMap<>();
+    private final Map<Integer, Button> buttons = new HashMap<>();
 
-    public PaginatedObjectFormat(@NotNull PaginatedConfiguration configuration,
-                                 @NotNull Collection<T> items,
+    private int currentPage = 1;
+
+    public PaginatedObjectFormat(@NotNull PaginatedConfiguration configuration, @NotNull Collection<T> items,
                                  @Nullable PaginatedObjectCallback<T> callback) {
 
         validateConstructor(configuration, items, callback);
@@ -40,8 +44,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
         }
     }
 
-    public PaginatedObjectFormat(@NotNull PaginatedConfiguration configuration,
-                                 @NotNull T[] items,
+    public PaginatedObjectFormat(@NotNull PaginatedConfiguration configuration, @NotNull T[] items,
                                  @Nullable PaginatedObjectCallback<T> callback) {
 
         validateConstructor(configuration, items, callback);
@@ -51,8 +54,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
         }
     }
 
-    private void validateConstructor(@NotNull PaginatedConfiguration configuration,
-                                     @NotNull Object items,
+    private void validateConstructor(@NotNull PaginatedConfiguration configuration, @NotNull Object items,
                                      @Nullable PaginatedObjectCallback<T> callback) {
 
         Validate.notNull(configuration, "configuration cannot be null");
@@ -64,7 +66,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
 
     @Override
     public boolean isValid(int slot) {
-        return slots.containsKey(slot);
+        return buttons.containsKey(slot) || slots.containsKey(slot);
     }
 
     @Override
@@ -72,7 +74,15 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
         Validate.notNull(event, "event cannot be null");
         Validate.notNull(builder, "builder cannot be null");
 
-        SimpleObjectFormat<T> format = slots.get(event.getRawSlot());
+        int slot = event.getRawSlot();
+
+        Button button = this.buttons.get(slot);
+        if (button != null) {
+            button.accept(event, builder, this);
+            return;
+        }
+
+        SimpleObjectFormat<T> format = slots.get(slot);
         if (format == null) return;
 
         PaginatedObjectCallback<T> callback = this.callback;
@@ -92,33 +102,51 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
 
     @Override
     public int getSize() {
-        return items.size();
+        return this.items.size();
+    }
+
+    @Override
+    public int getCurrentPage() {
+        return this.currentPage;
+    }
+
+    @Override
+    public void setCurrentPage(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder, int page) {
+        Validate.isTrue(page > 0 && page <= getSize(), "the page must be between 1 and " + this.getPages());
+        validate(builder, inventory);
+
+        this.currentPage = page;
+        this.clearInventory(inventory);
+        this.format(inventory, builder);
     }
 
     @Override
     public int getPages() {
-        return pages.size();
+        return this.pages.size();
     }
 
     @Override
     public void format(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) {
         validate(builder, inventory);
 
-        calculate(configuration.getSize(), this.items, this.pages);
         slots.clear();
+        buttons.clear();
 
+        int size = configuration.getSize();
         int start = configuration.getStart();
         int exit = configuration.getEnd();
+
+        calculate(size, this.items, this.pages);
 
         if (exit <= 0 || exit >= inventory.getSize()) {
             exit = inventory.getSize() - 1;
         }
 
-        List<SimpleObjectFormat<T>> values = this.pages.get(builder.getCurrentPage());
+        List<SimpleObjectFormat<T>> values = this.pages.get(this.getCurrentPage());
         if (values == null) return;
 
         SlotInvalidator validator = configuration.getValidator();
-        for(int index = 0; index < values.size() && start < exit; start++) {
+        for (int index = 0; index < values.size() && start < exit; start++) {
 
             SimpleObjectFormat<T> format = values.get(index);
             if (format.getSlot() >= 0) {
@@ -142,12 +170,21 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
                 continue;
             }
 
-            if(validator != null && validator.validate(start)) continue;
+            if (validator != null && validator.validate(start)) continue;
 
             inventory.setItem(start, format.getItemStack(inventory, builder));
             slots.put(start, format);
 
             index++;
+        }
+
+        for (Button button : configuration.getButtons()) {
+            if (button.canPlace(builder, this)) {
+                int slot = button.getSlot();
+
+                inventory.setItem(slot, button.getItem(inventory, builder.getProperties()));
+                buttons.put(slot, button);
+            }
         }
     }
 
@@ -162,7 +199,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
             return;
         }
 
-        List<SimpleObjectFormat<T>> formats = pages.get(builder.getCurrentPage());
+        List<SimpleObjectFormat<T>> formats = pages.get(this.getCurrentPage());
         if (formats != null) {
             format = new SimpleObjectFormat<>(slot, itemStack, null, null);
             formats.add(format);
@@ -205,7 +242,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
             return;
         }
 
-        List<SimpleObjectFormat<T>> formats = pages.get(builder.getCurrentPage());
+        List<SimpleObjectFormat<T>> formats = pages.get(this.getCurrentPage());
         if (formats != null) {
             format = new SimpleObjectFormat<>(slot, object, null);
             formats.add(format);
@@ -230,13 +267,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @NotNull Collection<T> objects) {
         validate(builder, inventory);
-
-        this.items.clear();
-        this.pages.clear();
-
-        for (Map.Entry<Integer, SimpleObjectFormat<T>> entry : this.slots.entrySet()) {
-            inventory.setItem(entry.getKey(), null);
-        }
+        clearInventory(inventory);
 
         for (T item : objects) {
             this.items.add(new SimpleObjectFormat<>(-1, item, null));
@@ -244,6 +275,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
 
         format(inventory, builder);
     }
+
 
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
@@ -257,6 +289,19 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
     private void validate(InventoryBuilder<T> builder, Inventory inventory) {
         Validate.notNull(builder, "builder cannot be null");
         Validate.notNull(inventory, "inventory cannot be null");
+    }
+
+    private void clearInventory(Inventory inventory) {
+        this.items.clear();
+        this.pages.clear();
+
+        for (Map.Entry<Integer, SimpleObjectFormat<T>> entry : this.slots.entrySet()) {
+            inventory.setItem(entry.getKey(), null);
+        }
+
+        for (Map.Entry<Integer, Button> entry : this.buttons.entrySet()) {
+            inventory.setItem(entry.getKey(), null);
+        }
     }
 
     @Override

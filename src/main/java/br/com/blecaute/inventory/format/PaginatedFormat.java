@@ -4,6 +4,8 @@ import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.configuration.PaginatedConfiguration;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.util.ListUtil;
+import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,10 @@ public interface PaginatedFormat<T extends InventoryItem> extends InventoryForma
      */
     int getPages();
 
+    int getCurrentPage();
+
+    void setCurrentPage(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder, int page);
+
     /**
      * Calculate pages
      *
@@ -35,7 +41,7 @@ public interface PaginatedFormat<T extends InventoryItem> extends InventoryForma
      * @param map The map of pages
      * @param <S> The @{@link InventoryFormat}
      */
-    default <S extends InventoryFormat<T>> void calculate(int size, List<S> items, Map<Integer, List<S>> map) {
+    default <S extends InventoryFormat<T>> void calculate(int size, List<S> items, @NotNull Map<Integer, List<S>> map) {
         if (map.size() > 0) return;
         if (size <= 0) {
             map.put(1, items);

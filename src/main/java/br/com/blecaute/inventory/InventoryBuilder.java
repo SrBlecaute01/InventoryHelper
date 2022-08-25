@@ -3,10 +3,8 @@ package br.com.blecaute.inventory;
 import br.com.blecaute.inventory.callback.*;
 import br.com.blecaute.inventory.configuration.InventoryConfiguration;
 import br.com.blecaute.inventory.configuration.PaginatedConfiguration;
-import br.com.blecaute.inventory.enums.ButtonType;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
-import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.format.impl.PaginatedItemFormat;
 import br.com.blecaute.inventory.format.impl.PaginatedObjectFormat;
 import br.com.blecaute.inventory.format.impl.SimpleObjectFormat;
@@ -14,7 +12,6 @@ import br.com.blecaute.inventory.format.impl.SimpleItemFormat;
 import br.com.blecaute.inventory.handler.UpdateHandler;
 import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
-import br.com.blecaute.inventory.util.Pair;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -59,11 +56,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
     @Getter(AccessLevel.PROTECTED)
     private Set<UpdateHandler<T>> updateHandlers = new LinkedHashSet<>();
-
-    @Getter(AccessLevel.PRIVATE)
-    private Map<ButtonType, Pair<Integer, ItemStack>> buttons = new EnumMap<>(ButtonType.class);
-
-    private int currentPage = 1;
 
     /**
      * Create a new InventoryBuilder with the given title and lines.
@@ -311,23 +303,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     }
 
     /**
-     * Set button in inventory
-     *
-     * @param type The type of button
-     * @param slot  The slot to set
-     * @param itemStack The ItemStack to set
-     *
-     * @return This InventoryBuilder
-     */
-    public InventoryBuilder<T> withButton(@NotNull ButtonType type, int slot, @NotNull ItemStack itemStack) {
-        if (slot >= 0) {
-            buttons.put(type, Pair.of(slot, itemStack));
-        }
-
-        return this;
-    }
-
-    /**
      * Add property to Inventory
      *
      * @param key The key of property
@@ -365,15 +340,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         inventory.clear();
 
         for (InventoryFormat<T> format : formats) {
-
-            if (format instanceof PaginatedFormat) {
-                PaginatedFormat<T> paginated = (PaginatedFormat<T>) format;
-                paginated.format(inventory, this);
-
-                createPages(paginated.getSize());
-                continue;
-            }
-
             format.format(inventory, this);
         }
 
@@ -430,7 +396,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
             clone.configuration = this.configuration.clone();
             clone.inventory = clone.createInventory();
             clone.properties = this.properties.clone();
-            clone.buttons = new EnumMap<>(this.buttons);
             clone.updater = new InventoryUpdater<>(clone);
             clone.formats = new LinkedHashSet<>(this.formats);
             clone.updateHandlers = new LinkedHashSet<>(this.updateHandlers);
@@ -478,18 +443,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         }
     }
 
-    private void createPages(int size) {
-/*        if(this.currentPage > 1 && buttons.containsKey(ButtonType.PREVIOUS_PAGE)) {
-            Pair<Integer, ItemStack> pair = buttons.get(ButtonType.PREVIOUS_PAGE);
-            inventory.setItem(pair.getKey(), pair.getValue());
-        }
-
-        if(this.currentPage > 0 && buttons.containsKey(ButtonType.NEXT_PAGE) && size > this.currentPage * this.pageSize) {
-            Pair<Integer, ItemStack> pair = buttons.get(ButtonType.NEXT_PAGE);
-            inventory.setItem(pair.getKey(), pair.getValue());
-        }*/
-    }
-
     private Inventory createInventory() {
         String name = ChatColor.translateAlternateColorCodes('&', configuration.getTitle());
         int size = Math.min(6, Math.max(1, configuration.getLines())) * 9;
@@ -499,21 +452,12 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
                 InventoryClickEvent click = (InventoryClickEvent) event;
 
                 int slot = click.getRawSlot();
-                for (Map.Entry<ButtonType, Pair<Integer, ItemStack>> entry : buttons.entrySet()) {
-                    if (entry.getValue().getKey() == slot) {
-                        this.currentPage = this.currentPage + entry.getKey().getValue();
-                        format();
-                        return;
-                    }
-                }
-
                 for (InventoryFormat<T> format : formats) {
                     if (format.isValid(slot)) {
                         format.accept(click, this);
                         break;
                     }
                 }
-
             }
 
         }), size, name);
