@@ -1,6 +1,6 @@
 package br.com.blecaute.inventory.configuration;
 
-import br.com.blecaute.inventory.buttons.Button;
+import br.com.blecaute.inventory.button.Button;
 import br.com.blecaute.inventory.validator.SlotInvalidator;
 import lombok.*;
 import org.jetbrains.annotations.ApiStatus;

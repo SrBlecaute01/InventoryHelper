@@ -1,7 +1,7 @@
 package br.com.blecaute.inventory.format.impl;
 
 import br.com.blecaute.inventory.InventoryBuilder;
-import br.com.blecaute.inventory.buttons.Button;
+import br.com.blecaute.inventory.button.Button;
 import br.com.blecaute.inventory.callback.ItemCallback;
 import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.callback.PaginatedObjectCallback;
