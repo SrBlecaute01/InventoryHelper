@@ -14,6 +14,7 @@ import java.util.*;
 @Getter
 @Builder(toBuilder = true)
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class PaginatedConfiguration implements Configuration {
 
     @NonNull
