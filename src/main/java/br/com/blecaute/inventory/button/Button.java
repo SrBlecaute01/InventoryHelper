@@ -59,7 +59,7 @@ public interface Button extends InventorySlot {
     }
 
     /**
-     * Create a new button with given type, slot, item and always show option.
+     * Create a new button with given @{@link ButtonType}, slot, @{@link ItemStack} and always show option.
      *
      * @param type The type.
      * @param slot The slot.
