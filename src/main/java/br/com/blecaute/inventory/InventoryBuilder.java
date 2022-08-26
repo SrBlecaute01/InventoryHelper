@@ -55,7 +55,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     @Getter(AccessLevel.PROTECTED)
     private Set<UpdateHandler<T>> updateHandlers = new LinkedHashSet<>();
 
-
     /**
      * Create a new InventoryBuilder with the given title and lines.
      *
@@ -332,7 +331,15 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         return this;
     }
 
+    /**
+     * Set a @{@link Button} in inventory.
+     *
+     * @param button The button.
+     *
+     * @return This InventoryBuilder.
+     */
     public InventoryBuilder<T> withButton(@NotNull Button button) {
+        Validate.notNull(button, "button cannot be null");
         addFormat(new ButtonFormatImpl<>(button));
         return this;
     }

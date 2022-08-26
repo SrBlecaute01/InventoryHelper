@@ -1,7 +1,18 @@
 package br.com.blecaute.inventory.button;
 
+/**
+ * The available button types.
+ */
 public enum ButtonType {
 
-    PREVIOUS_PAGE, NEXT_PAGE
+    /**
+     * Previous page button type.
+     */
+    PREVIOUS_PAGE,
+
+    /**
+     * Next page button type.
+     */
+    NEXT_PAGE
 
 }
