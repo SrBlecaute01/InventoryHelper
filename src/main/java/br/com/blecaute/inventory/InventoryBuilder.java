@@ -1,14 +1,12 @@
 package br.com.blecaute.inventory;
 
+import br.com.blecaute.inventory.button.Button;
 import br.com.blecaute.inventory.callback.*;
 import br.com.blecaute.inventory.configuration.InventoryConfiguration;
 import br.com.blecaute.inventory.configuration.PaginatedConfiguration;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
-import br.com.blecaute.inventory.format.impl.PaginatedItemFormat;
-import br.com.blecaute.inventory.format.impl.PaginatedObjectFormat;
-import br.com.blecaute.inventory.format.impl.SimpleObjectFormat;
-import br.com.blecaute.inventory.format.impl.SimpleItemFormat;
+import br.com.blecaute.inventory.format.impl.*;
 import br.com.blecaute.inventory.handler.UpdateHandler;
 import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
@@ -48,7 +46,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
     private InventoryProperty properties = new InventoryProperty();
 
-    @Getter(AccessLevel.PROTECTED)
+    @Getter
     private Set<InventoryFormat<T>> formats = ConcurrentHashMap.newKeySet();
 
     @Getter(AccessLevel.PROTECTED)
@@ -56,6 +54,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
     @Getter(AccessLevel.PROTECTED)
     private Set<UpdateHandler<T>> updateHandlers = new LinkedHashSet<>();
+
 
     /**
      * Create a new InventoryBuilder with the given title and lines.
@@ -106,6 +105,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return The InventoryBuilder
      */
+    @Contract("_ -> new")
     public static <T extends InventoryItem> @NotNull InventoryBuilder<T> of(@NotNull InventoryConfiguration configuration) {
         return new InventoryBuilder<T>(configuration);
     }
@@ -118,6 +118,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return The InventoryBuilder
      */
+    @Contract("_,_ -> this")
     public InventoryBuilder<T> withUpdate(long seconds, @NotNull UpdateCallback<T> callback) {
         return withUpdate(seconds, TimeUnit.SECONDS, callback);
     }
@@ -328,6 +329,11 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     public InventoryBuilder<T> withProperties(@NotNull InventoryProperty properties) {
         Validate.notNull(properties, "properties cannot be null");
         this.properties = properties;
+        return this;
+    }
+
+    public InventoryBuilder<T> withButton(@NotNull Button button) {
+        addFormat(new ButtonFormatImpl<>(button));
         return this;
     }
 

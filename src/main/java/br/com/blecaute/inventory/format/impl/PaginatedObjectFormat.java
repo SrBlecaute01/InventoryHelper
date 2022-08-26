@@ -179,7 +179,7 @@ public class PaginatedObjectFormat<T extends InventoryItem> implements Paginated
         }
 
         for (Button button : configuration.getButtons()) {
-            if (button.canPlace(builder, this)) {
+            if (button.canFormat(inventory, builder, this)) {
                 int slot = button.getSlot();
 
                 inventory.setItem(slot, button.getItem(inventory, builder.getProperties()));

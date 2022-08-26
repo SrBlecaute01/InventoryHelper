@@ -113,7 +113,7 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
 
     @Override
     public void setCurrentPage(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder, int page) {
-        Validate.isTrue(page > 0 && page <= this.getPages(), "page must be between 1 and " + this.getPages());
+        Validate.isTrue(page <= 0, "page must be positive");
         validate(builder, inventory);
 
         this.currentPage = page;
@@ -162,7 +162,7 @@ public class PaginatedItemFormat<T extends InventoryItem> implements PaginatedFo
         }
 
         for (Button button : configuration.getButtons()) {
-            if (button.canPlace(builder, this)) {
+            if (button.canFormat(inventory, builder, this)) {
                 int slot = button.getSlot();
 
                 inventory.setItem(slot, button.getItem(inventory, builder.getProperties()));

@@ -4,10 +4,8 @@ import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.callback.ObjectCallback;
 import br.com.blecaute.inventory.event.updatable.UpdatableObject;
 import br.com.blecaute.inventory.format.InventoryFormat;
-import br.com.blecaute.inventory.format.updater.ObjectUpdater;
 import br.com.blecaute.inventory.type.InventoryItem;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

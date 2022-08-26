@@ -7,17 +7,18 @@ import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
 import br.com.blecaute.inventory.type.InventorySlot;
 import org.apache.commons.lang.Validate;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface Button extends InventorySlot {
 
-    <T extends InventoryItem> void accept(@NotNull InventoryClickEvent event, @NotNull InventoryBuilder<T> builder,
-                                          @NotNull InventoryFormat<T> format);
+    <T extends InventoryItem> void accept(@NotNull InventoryEvent event, @NotNull InventoryBuilder<T> builder, @NotNull InventoryFormat<T> format);
 
-    <T extends InventoryItem> boolean canPlace(@NotNull InventoryBuilder<T> builder, @NotNull InventoryFormat<T> format);
+    <T extends InventoryItem> boolean canFormat(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder, @NotNull InventoryFormat<T> format);
 
     @NotNull
     @Contract("_, _, _ -> new")
