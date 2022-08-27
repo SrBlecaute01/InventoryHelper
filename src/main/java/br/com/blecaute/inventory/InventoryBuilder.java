@@ -4,6 +4,7 @@ import br.com.blecaute.inventory.button.Button;
 import br.com.blecaute.inventory.callback.*;
 import br.com.blecaute.inventory.configuration.InventoryConfiguration;
 import br.com.blecaute.inventory.configuration.PaginatedConfiguration;
+import br.com.blecaute.inventory.enums.ButtonType;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.format.impl.*;
@@ -23,6 +24,7 @@ import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -328,6 +330,25 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     public InventoryBuilder<T> withProperties(@NotNull InventoryProperty properties) {
         Validate.notNull(properties, "properties cannot be null");
         this.properties = properties;
+        return this;
+    }
+
+    /**
+     * Set button in inventory
+     *
+     * @param type The type of button
+     * @param slot  The slot to set
+     * @param itemStack The ItemStack to set
+     *
+     * @return This InventoryBuilder
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
+    public InventoryBuilder<T> withButton(@NotNull ButtonType type, int slot, @NotNull ItemStack itemStack) {
+        if (slot >= 0) {
+            withButton(Button.of(br.com.blecaute.inventory.button.ButtonType.valueOf(type.name()), slot, itemStack));
+        }
+
         return this;
     }
 
