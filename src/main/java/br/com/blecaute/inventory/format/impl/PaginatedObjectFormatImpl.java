@@ -147,10 +147,13 @@ public class PaginatedObjectFormatImpl<T extends InventoryItem> implements Pagin
         SlotInvalidator validator = configuration.getValidator();
         for (int index = 0; index < values.size() && start < exit; start++) {
             SimpleObjectFormatImpl<T> format = values.get(index);
-            if (format.getSlot() >= 0) {
-                inventory.setItem(start, format.getItemStack(inventory, builder));
-                slots.put(start, format);
+
+            int formatSlot = format.getSlot();
+            if (formatSlot >= 0) {
+                inventory.setItem(formatSlot, format.getItemStack(inventory, builder));
+                slots.put(formatSlot, format);
                 index++;
+
                 continue;
             }
 
@@ -159,7 +162,7 @@ public class PaginatedObjectFormatImpl<T extends InventoryItem> implements Pagin
                 InventorySlot inventorySlot = (InventorySlot) value;
 
                 int itemSlot = inventorySlot.getSlot();
-                if (itemSlot > 0) {
+                if (itemSlot >= 0) {
                     inventory.setItem(itemSlot, format.getItemStack(inventory, builder));
                     slots.put(itemSlot, format);
                 }
@@ -168,19 +171,14 @@ public class PaginatedObjectFormatImpl<T extends InventoryItem> implements Pagin
                 continue;
             }
 
-            if (validator != null && validator.validate(start)) continue;
-
-            inventory.setItem(start, format.getItemStack(inventory, builder));
-            slots.put(start, format);
-
-            index++;
-        }
-
-        for (ButtonFormat<T> button : buttons) {
-            if (button.update(inventory, builder, this)) {
-                slots.put(button.getSlot(), button);
+            if (validator == null || !validator.validate(start)) {
+                inventory.setItem(start, format.getItemStack(inventory, builder));
+                slots.put(start, format);
+                index++;
             }
         }
+
+        updateButtons(inventory, builder);
     }
 
     @Override
@@ -311,6 +309,14 @@ public class PaginatedObjectFormatImpl<T extends InventoryItem> implements Pagin
     private void clearInventory(Inventory inventory) {
         for (int slot : this.slots.keySet()) {
             inventory.setItem(slot, null);
+        }
+    }
+
+    private void updateButtons(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) {
+        for (ButtonFormat<T> button : buttons) {
+            if (button.update(inventory, builder, this)) {
+                slots.put(button.getSlot(), button);
+            }
         }
     }
 

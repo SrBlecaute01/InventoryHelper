@@ -145,28 +145,26 @@ public class PaginatedItemFormatImpl<T extends InventoryItem> implements Paginat
         SlotInvalidator validator = configuration.getValidator();
         for (int index = 0; index < values.size() && start < exit; start++) {
             SimpleItemFormatImpl<T> format = values.get(index);
-            if (format.getSlot() >= 0) {
-                inventory.setItem(start, format.getItemStack());
-                slots.put(start, format);
+
+            int formatSlot = format.getSlot();
+            if (formatSlot >= 0) {
+                inventory.setItem(formatSlot, format.getItemStack());
+                slots.put(formatSlot, format);
                 index++;
 
                 continue;
             }
 
-            if (validator != null && validator.validate(start)) continue;
+            if (validator == null || !validator.validate(start)) {
+                ItemStack item = format.getItemStack();
+                inventory.setItem(start, item);
 
-            ItemStack item = format.getItemStack();
-            inventory.setItem(start, item);
-
-            slots.put(start, format);
-            index++;
-        }
-
-        for (ButtonFormat<T> button : buttons) {
-            if (button.update(inventory, builder, this)) {
-                slots.put(button.getSlot(), button);
+                slots.put(start, format);
+                index++;
             }
         }
+
+        updateButtons(inventory, builder);
     }
 
     @Override
@@ -249,6 +247,14 @@ public class PaginatedItemFormatImpl<T extends InventoryItem> implements Paginat
     private void clearInventory(@NotNull Inventory inventory) {
         for (int slot : this.slots.keySet()) {
             inventory.setItem(slot, null);
+        }
+    }
+
+    private void updateButtons(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder) {
+        for (ButtonFormat<T> button : buttons) {
+            if (button.update(inventory, builder, this)) {
+                slots.put(button.getSlot(), button);
+            }
         }
     }
 
