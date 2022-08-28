@@ -8,6 +8,7 @@ import br.com.blecaute.inventory.format.PaginatedFormat;
 import br.com.blecaute.inventory.property.InventoryProperty;
 import br.com.blecaute.inventory.type.InventoryItem;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -22,14 +23,18 @@ public abstract class AbstractPageButtonImpl implements Button {
     protected final boolean alwaysShow;
 
     @Override
-    public <T extends InventoryItem> void accept(@NotNull InventoryEvent event,
-                                                 @NotNull InventoryBuilder<T> builder,
-                                                 @Nullable InventoryFormat<T> format) {
+    public <T extends InventoryItem> void accept(@NotNull InventoryEvent event, @NotNull InventoryBuilder<T> builder,
+                                                 @NotNull InventoryFormat<T> format) {
+
+        Validate.notNull(event, "event cannot be null");
+        validate(builder, format);
 
         if (format instanceof PaginatedFormat) {
             change(event, builder, (PaginatedFormat<T>) format);
+            return;
+        }
 
-        } else if (format instanceof ButtonFormat) {
+        if (format instanceof ButtonFormat) {
             for (InventoryFormat<T> inventoryFormat : builder.getFormats()) {
                 if (inventoryFormat instanceof PaginatedFormat) {
                     change(event, builder, (PaginatedFormat<T>) inventoryFormat);
@@ -39,16 +44,18 @@ public abstract class AbstractPageButtonImpl implements Button {
     }
 
     @Override
-    public <T extends InventoryItem> boolean canFormat(@NotNull Inventory inventory,
-                                                       @NotNull InventoryBuilder<T> builder,
-                                                       @Nullable InventoryFormat<T> format) {
+    public <T extends InventoryItem> boolean canFormat(@NotNull Inventory inventory, @NotNull InventoryBuilder<T> builder,
+                                                       @NotNull InventoryFormat<T> format) {
+
+        Validate.notNull(inventory, "inventory cannot be null");
+        validate(builder, format);
 
         if (alwaysShow) return true;
-
         if (format instanceof PaginatedFormat) {
             return canChange((PaginatedFormat<T>) format);
+        }
 
-        } else if (format instanceof ButtonFormat) {
+        if (format instanceof ButtonFormat) {
             for (InventoryFormat<T> inventoryFormat : builder.getFormats()) {
                 if (inventoryFormat instanceof PaginatedFormat) {
                     PaginatedFormat<T> paginatedFormat = (PaginatedFormat<T>) inventoryFormat;
@@ -60,12 +67,10 @@ public abstract class AbstractPageButtonImpl implements Button {
         return false;
     }
 
-
-    abstract <T extends InventoryItem> void change(@NotNull InventoryEvent event,
-                                                   @NotNull InventoryBuilder<T> builder,
-                                                   @NotNull PaginatedFormat<T> format);
-
     abstract <T extends InventoryItem> boolean canChange(@NotNull PaginatedFormat<T> format);
+
+    abstract <T extends InventoryItem> void change(@NotNull InventoryEvent event, @NotNull InventoryBuilder<T> builder,
+                                                   @NotNull PaginatedFormat<T> format);
 
     @Override
     public @Nullable ItemStack getItem(@NotNull Inventory inventory, @NotNull InventoryProperty property) {
@@ -77,5 +82,9 @@ public abstract class AbstractPageButtonImpl implements Button {
         return slot;
     }
 
+    private void validate(InventoryBuilder<?> builder,  InventoryFormat<?> format) {
+        Validate.notNull(builder, "builder cannot be null");
+        Validate.notNull(format, "format cannot be null");
+    }
 
 }

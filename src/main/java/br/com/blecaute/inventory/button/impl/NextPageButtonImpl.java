@@ -14,15 +14,14 @@ public class NextPageButtonImpl extends AbstractPageButtonImpl {
     }
 
     <T extends InventoryItem> boolean canChange(@NotNull PaginatedFormat<T> format) {
-        return format.getCurrentPage() < format.getPages();
+        return format.getCurrentPage() < format.getPagesSize();
     }
 
-    <T extends InventoryItem> void change(@NotNull InventoryEvent event,
-                                          @NotNull InventoryBuilder<T> builder,
+    <T extends InventoryItem> void change(@NotNull InventoryEvent event, @NotNull InventoryBuilder<T> builder,
                                           @NotNull PaginatedFormat<T> format) {
 
-        int current = format.getCurrentPage();
-        if (!alwaysShow || current < format.getPages()) {
+        int current = format.getCurrentPage();        
+        if (current < format.getPagesSize()) {
             format.setCurrentPage(event.getInventory(), builder, current + 1);
         }
     }

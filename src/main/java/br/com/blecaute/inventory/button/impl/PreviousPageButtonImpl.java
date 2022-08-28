@@ -17,8 +17,7 @@ public class PreviousPageButtonImpl extends AbstractPageButtonImpl {
         return format.getCurrentPage() > 1;
     }
 
-    <T extends InventoryItem> void change(@NotNull InventoryEvent event,
-                                          @NotNull InventoryBuilder<T> builder,
+    <T extends InventoryItem> void change(@NotNull InventoryEvent event, @NotNull InventoryBuilder<T> builder,
                                           @NotNull PaginatedFormat<T> format) {
 
         int current = format.getCurrentPage();

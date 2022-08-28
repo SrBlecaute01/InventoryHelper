@@ -1,7 +1,7 @@
 package br.com.blecaute.inventory.button;
 
 /**
- * The available button types.
+ * The available types of @{@link Button}
  */
 public enum ButtonType {
 

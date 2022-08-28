@@ -1,6 +1,6 @@
 package br.com.blecaute.inventory.configuration;
 
 /**
- * The Configuration represents inventory settings.
+ * Represents an inventory configuration.
  */
 public interface Configuration {}

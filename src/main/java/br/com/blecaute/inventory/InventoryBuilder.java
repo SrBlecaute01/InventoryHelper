@@ -152,7 +152,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      */
     public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack) {
         if (slot >= 0) {
-            addFormat(new SimpleItemFormat<>(slot, itemStack, null));
+            addFormat(new SimpleItemFormatImpl<>(slot, itemStack, null));
         }
 
         return this;
@@ -169,7 +169,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      */
     public InventoryBuilder<T> withItem(int slot, @NotNull ItemStack itemStack, @NotNull ItemCallback<T> callBack) {
         if (slot >= 0) {
-            addFormat(new SimpleItemFormat<>(slot, itemStack, callBack));
+            addFormat(new SimpleItemFormatImpl<>(slot, itemStack, callBack));
         }
 
         return this;
@@ -200,7 +200,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
                                          @Nullable PaginatedItemCallback<T> callback) {
 
         if (configuration.getStart() >= 0) {
-            this.addFormat(new PaginatedItemFormat<T>(configuration, items, callback));
+            this.addFormat(new PaginatedItemFormatImpl<T>(configuration, Arrays.asList(items), callback));
         }
 
         return this;
@@ -231,7 +231,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
                                          @Nullable PaginatedItemCallback<T> callback) {
 
         if (configuration.getStart() >= 0) {
-            this.addFormat(new PaginatedItemFormat<T>(configuration, items, callback));
+            this.addFormat(new PaginatedItemFormatImpl<T>(configuration, items, callback));
         }
 
         return this;
@@ -260,7 +260,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      */
     public InventoryBuilder<T> withObject(int slot, @NotNull T value, @Nullable ObjectCallback<T> callback) {
         if (slot >= 0) {
-            addFormat(new SimpleObjectFormat<>(slot, value, callback));
+            addFormat(new SimpleObjectFormatImpl<>(slot, value, callback));
         }
 
         return this;
@@ -279,7 +279,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
                                            @Nullable PaginatedObjectCallback<T> callback) {
 
         if (configuration.getStart() >= 0) {
-            this.addFormat(new PaginatedObjectFormat<T>(configuration, objects, callback));
+            this.addFormat(new PaginatedObjectFormatImpl<T>(configuration, Arrays.asList(objects), callback));
         }
 
         return this;
@@ -298,7 +298,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
                                            @Nullable PaginatedObjectCallback<T> callback) {
 
         if (configuration.getStart() >= 0) {
-            this.addFormat(new PaginatedObjectFormat<T>(configuration, objects, callback));
+            this.addFormat(new PaginatedObjectFormatImpl<T>(configuration, objects, callback));
         }
 
         return this;

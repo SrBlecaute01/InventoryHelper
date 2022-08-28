@@ -4,6 +4,7 @@ import br.com.blecaute.inventory.InventoryBuilder;
 import br.com.blecaute.inventory.button.Button;
 import br.com.blecaute.inventory.format.ButtonFormat;
 import br.com.blecaute.inventory.type.InventoryItem;
+import org.apache.commons.lang.Validate;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -13,7 +14,9 @@ public class ButtonFormatImpl<T extends InventoryItem> implements ButtonFormat<T
 
     private final Button button;
 
-    public ButtonFormatImpl(Button button) {
+    public ButtonFormatImpl(@NotNull Button button) {
+        Validate.notNull(button, "button cannot be null");
+
         this.button = button;
     }
 
