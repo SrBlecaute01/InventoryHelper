@@ -199,6 +199,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration, @NotNull ItemStack[] items,
                                          @Nullable PaginatedItemCallback<T> callback) {
 
+        Validate.notNull(configuration, "configuration cannot be null");
         if (configuration.getStart() >= 0) {
             this.addFormat(new PaginatedItemFormatImpl<T>(configuration, Arrays.asList(items), callback));
         }
@@ -230,6 +231,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration, @NotNull Collection<ItemStack> items,
                                          @Nullable PaginatedItemCallback<T> callback) {
 
+        Validate.notNull(configuration, "configuration cannot be null");
         if (configuration.getStart() >= 0) {
             this.addFormat(new PaginatedItemFormatImpl<T>(configuration, items, callback));
         }
@@ -278,6 +280,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     public InventoryBuilder<T> withObjects(@NotNull PaginatedConfiguration configuration, @NotNull T[] objects,
                                            @Nullable PaginatedObjectCallback<T> callback) {
 
+        Validate.notNull(configuration, "configuration cannot be null");
         if (configuration.getStart() >= 0) {
             this.addFormat(new PaginatedObjectFormatImpl<T>(configuration, Arrays.asList(objects), callback));
         }
@@ -297,6 +300,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     public InventoryBuilder<T> withObjects(@NotNull PaginatedConfiguration configuration, @NotNull Collection<T> objects,
                                            @Nullable PaginatedObjectCallback<T> callback) {
 
+        Validate.notNull(configuration, "configuration cannot be null");
         if (configuration.getStart() >= 0) {
             this.addFormat(new PaginatedObjectFormatImpl<T>(configuration, objects, callback));
         }
@@ -346,7 +350,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     @ApiStatus.ScheduledForRemoval
     public InventoryBuilder<T> withButton(@NotNull ButtonType type, int slot, @NotNull ItemStack itemStack) {
         if (slot >= 0) {
-            withButton(Button.of(br.com.blecaute.inventory.button.ButtonType.valueOf(type.name()), slot, itemStack));
+            withButton(Button.of(type, slot, itemStack));
         }
 
         return this;

@@ -137,12 +137,10 @@ public class PaginatedItemFormatImpl<T extends InventoryItem> implements Paginat
         calculate(size, this.items, this.pages);
         slots.clear();
 
-        if (exit <= 0 || exit >= inventory.getSize()) {
-            exit = inventory.getSize() - 1;
-        }
-
         List<SimpleItemFormatImpl<T>> values = this.pages.get(this.getCurrentPage());
         if (values == null) return;
+
+        exit = exit <= 0 || exit >= inventory.getSize() ? inventory.getSize() - 1 : exit;
 
         SlotInvalidator validator = configuration.getValidator();
         for (int index = 0; index < values.size() && start < exit; start++) {
