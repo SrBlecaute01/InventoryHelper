@@ -22,9 +22,14 @@
 - Integration with objects.
 - Inventory update methods.
 
-## Sumary
+## Summary
 
 For a better understanding of the features this project offers, please check the [documentation](https://github.com/SrBlecaute01/InventoryHelper/wiki).
+
+- [Introduction](https://github.com/SrBlecaute01/InventoryHelper#enabling-inventoryhelper)
+- [Simple inventories](https://github.com/SrBlecaute01/InventoryHelper#creating-simple-inventory)
+- [Paginated inventories](https://github.com/SrBlecaute01/InventoryHelper#creating-paginated-inventory)
+- [Download](https://github.com/SrBlecaute01/InventoryHelper#download)
 
 ## Enabling InventoryHelper
 
