@@ -2,7 +2,6 @@ package br.com.blecaute.inventory.handler;
 
 import br.com.blecaute.inventory.InventoryUpdater;
 import br.com.blecaute.inventory.callback.UpdateCallback;
-import br.com.blecaute.inventory.event.updatable.Updatable;
 import br.com.blecaute.inventory.type.InventoryItem;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.Validate;
