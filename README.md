@@ -1,32 +1,123 @@
 <h1 align="center">InventoryHelper</h1>
 
 <p align="center">
-    <a href="https://jitpack.io/#SrBlecaute01/InventoryHelper" alt="Downloads">
+    <a target="_blank" href="https://jitpack.io/#SrBlecaute01/InventoryHelper" alt="Downloads">
         <img src=https://img.shields.io/jitpack/v/github/SrBlecaute01/InventoryHelper?label=Snapshots&color=lime_green/>
     </a>
-    <a href="" alt="Downloads">
+    <a target="_blank" href="https://github.com/SrBlecaute01/InventoryHelper/releases" alt="Downloads">
         <img src=https://img.shields.io/github/downloads/SrBlecaute01/InventoryHelper/total?color=lime_green/>
     </a>
-    <a href="" alt="Codacy">
+    <a target="_blank" href="https://app.codacy.com/gh/SrBlecaute01/InventoryHelper/dashboard" alt="Codacy">
         <img src="https://app.codacy.com/project/badge/Grade/7062d74db06d4935a5e69a7a539e4116"/>
     </a>
 </p>
 
-Um auxiliar para criação de inventários no minecraft com maior facilidade
-e flexibilidade  afim de promover integração com objetos.
+<p align="center">A helper for creating inventories in Minecraft with greater ease, efficiency and flexibility.</p>
 
-## Recursos
+## Some features
 
-- Criação de inventários paginados.
-- Flexbilidade com objetos.
-- Ações individuais para cada item.
-- Propiedades para cada inventário.
+- Creation of simple or paginated inventories.
+- Possibility to create multiple patterns in the same inventory.
+- Properties for each inventory.
+- Integration with objects.
+- Inventory update methods.
+
+## Sumary
+
+For a better understanding of the features this project offers, please check the [documentation](https://github.com/SrBlecaute01/InventoryHelper/wiki).
+
+## Enabling InventoryHelper
+
+Before creating inventories with InventoryHelper, it must be activated. Its activation can be done as follows:
+
+```java
+InventoryHelper.enable(plugin)
+```
+
+You can and should use this method when your plugin starts, like the following example:
+
+```java
+public class MainClass extends JavaPlugin {
+
+    @Override
+    public void onEnable() {
+        InventoryHelper.enable(this);
+    }
+}
+```
+## Creating simple inventory
+
+After starting InventoryHelper you can start building your inventories. All inventories are built from [InventoryBuilder](https://github.com/SrBlecaute01/InventoryHelper/blob/master/src/main/java/br/com/blecaute/inventory/InventoryBuilder.java). It has a range of methods for placing items or objects depending on their use.
+
+```java
+new InventoryBuilder(title, lines);
+```
+
+You can also use inventory configuration to get started with InventoryBuilder. It can provide a better amount of resources for creating the inventory.
+
+```java
+InventoryConfiguration configuration = InventoryConfiguration.builder(title, lines).build();
+```
+After instantiating the inventory configuration you can use it as follows:
+
+```java
+new InventoryBuilder(configuration);
+```
+**NOTE**: You can also use the static methods like ``InventoryBuilder.of(title, lines)`` or ``InventoryBuilder.of(configuration)`` for the builder creation.
+
+After that, you can put the items in your inventory:
+
+```java
+Inventory inventory = InventoryBuilder.of("Simple inventory", 3)
+    .withItem(13, ItemUtil.getItem(Material.REDSTONE, "§cClick me"), click -> {
+        Player player = click.getPlayer();
+        player.sendMessage("§cHi " + player.getName());
+    }).build();
+```
+
+**NOTE**: You can directly open the inventory for the player with the ``build(player...)`` method. This method will build the inventory and automatically open it for the player.
+
+## Creating paginated inventory
+
+Paginated inventories are a convenient way to show various items to players. They can be easily created using InventoryBuilder. 
+
+Paginated inventories work with PaginatedConfiguration. In these settings it is possible to define the buttons, amount of objects on each page and among others.
+```java
+PaginatedConfiguration paginatedConfiguration = PaginatedConfiguration.builder("identifier")
+    .size(15) // Size of objets in each page.
+    .start(11) // The slot to start placing of items. 
+    .end(34) // The slot to stop placing of items.
+    .validator(slot -> (slot > 15 && slot < 20) || (slot > 24 && slot < 29)) // Skip the slots that meet this requirement.
+    .button(Button.of(ButtonType.PREVIOUS_PAGE, 48, previousButtonItem)) // Set the button to go back to the page.
+    .button(Button.of(ButtonType.NEXT_PAGE, 50, nextButtonItem)) //Set the button to pass the page.
+    .build(); // build configuration
+
+InventoryBuilder.of(inventoryConfiguration)
+    .withItems(paginatedConfiguration, items, click -> {
+        Material type = click.getItemStack().getType();
+        click.getPlayer().sendMessage("You clicked in " + type.name());
+    }).build(player);
+```
+
+<p align="center">
+    In the end you will get something like this:
+    <br>
+    <a href="" alt="Paginated"><img src="https://imgur.com/rUrZtaa.gif"></a>
+</p>
 
 ## Download
-![jitpack](https://img.shields.io/jitpack/v/github/SrBlecaute01/InventoryHelper?label=Snapshots&color=lime_green)
-![Downloads](https://img.shields.io/github/downloads/SrBlecaute01/InventoryHelper/total?color=lime_green)
 
-Versão mais recente: [Release](https://github.com/SrBlecaute01/InventoryHelper/releases/latest)
+<a target="_blank" href="https://jitpack.io/#SrBlecaute01/InventoryHelper" alt="Downloads">
+    <img src=https://img.shields.io/jitpack/v/github/SrBlecaute01/InventoryHelper?label=Snapshots&color=blue/>
+</a>
+<a target="_blank" href="https://github.com/SrBlecaute01/InventoryHelper/releases" alt="Downloads">
+    <img src=https://img.shields.io/github/downloads/SrBlecaute01/InventoryHelper/total?color=blue/>
+</a>
+<p>
+    <br>
+    You can see the latest release <a target="_blank" alt="latest" href="https://github.com/SrBlecaute01/InventoryHelper/releases/latest">here</a>
+    <br>
+</p>
 
 **Maven**
 ```xml
@@ -41,7 +132,7 @@ Versão mais recente: [Release](https://github.com/SrBlecaute01/InventoryHelper/
     <dependency>
         <groupId>com.github.SrBlecaute01</groupId>
         <artifactId>InventoryHelper</artifactId>
-        <version>${VERSION}</version>
+        <version>1.5.0</version>
     </dependency>
 </dependencies>
 ```
@@ -56,53 +147,3 @@ dependencies {
     implementation 'com.github.SrBlecaute01:InventoryHelper:1.0'
 }
 ```
-
-## Começando
-
-Após adicionar o repositório ao seu projeto com maven ou gradle
-o InventoryHelper precisa ser ativado para o registro dos eventos.
-
-```java
-public class SimpleInventoryExample extends JavaPlugin {
-
-    @Override
-    public void onEnable() {
-        // enable inventory helper
-        InventoryHelper.enable(this);
-    }
-}
-```
-
-Após isso o InventoryBuilder já pode ser utilizado. Caso o helper não seja iniciado corretamente,
-ao iniciar uma instância do InventoryBuilder ele lançará o [InventoryBuilderException](https://github.com/SrBlecaute01/InventoryHelper/blob/master/src/main/java/br/com/blecaute/inventory/exception/InventoryBuilderException.java)
-devido ao não registro do helper.
-
-**Exemplo da construção de um inventário simples**
-
-```java
-public class SimpleInventoryExample extends JavaPlugin implements Listener {
-
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-
-        new InventoryBuilder<>("Custom inventory", 3)
-                .withItem(13, getItem(), click -> {
-                    player.closeInventory();
-                    player.sendMessage("§eYou clicked in item ;).");
-
-                }).build(player);
-    }
-
-    public ItemStack getItem() {
-        ItemStack itemStack = new ItemStack(Material.DIAMOND);
-        ItemMeta meta = itemStack.getItemMeta();
-        meta.setDisplayName("§eClick");
-
-        itemStack.setItemMeta(meta);
-
-        return itemStack;
-    }
-}
-```
-Você pode ver mais exemplos como esse clicando [aqui](https://github.com/SrBlecaute01/InventoryHelper/tree/master/src/examples/java).
