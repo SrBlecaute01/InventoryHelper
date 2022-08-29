@@ -12,7 +12,7 @@ import java.util.*;
  * The PaginatedConfiguration is designed to configure paginated inventories.
  */
 @Getter
-@Builder(toBuilder = true)
+@Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class PaginatedConfiguration implements Configuration {
