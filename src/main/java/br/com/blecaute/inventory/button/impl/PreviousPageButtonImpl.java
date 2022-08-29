@@ -21,7 +21,7 @@ public class PreviousPageButtonImpl extends AbstractPageButtonImpl {
                                           @NotNull PaginatedFormat<T> format) {
 
         int current = format.getCurrentPage();
-        if (!alwaysShow || current > 1) {
+        if (current > 1) {
             format.setCurrentPage(event.getInventory(), builder, current - 1);
         }
     }
