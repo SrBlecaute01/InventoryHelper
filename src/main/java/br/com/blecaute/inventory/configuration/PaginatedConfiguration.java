@@ -23,8 +23,9 @@ public class PaginatedConfiguration implements Configuration {
     @Builder.Default @Nullable
     private SlotInvalidator validator = null;
 
-    @Builder.Default
-    private int start = 0, end = 0, size = 0;
+    private int start;
+    private int end;
+    private int size;
 
     @NonNull @Singular
     private Set<Button> buttons = new HashSet<>();
