@@ -134,10 +134,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @return The InventoryBuilder
      */
     public InventoryBuilder<T> withUpdate(long time, @NotNull TimeUnit unit, @NotNull UpdateCallback<T> callback) {
-        Validate.isTrue(time > 0, "time must be greater than 0");
-        Validate.notNull(unit, "unit cannot be null");
-        Validate.notNull(callback, "callback cannot be null");
-
         this.updateHandlers.add(new UpdateHandler<>(time, unit, callback));
         return this;
     }
