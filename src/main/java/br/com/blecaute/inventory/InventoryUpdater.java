@@ -9,9 +9,9 @@ import br.com.blecaute.inventory.event.updatable.Updatable;
 import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.format.InventoryFormat;
 import br.com.blecaute.inventory.format.PaginatedFormat;
-import br.com.blecaute.inventory.format.impl.PaginatedItemFormat;
-import br.com.blecaute.inventory.format.impl.SimpleItemFormat;
-import br.com.blecaute.inventory.format.impl.SimpleObjectFormat;
+import br.com.blecaute.inventory.format.impl.PaginatedItemFormatImpl;
+import br.com.blecaute.inventory.format.impl.SimpleItemFormatImpl;
+import br.com.blecaute.inventory.format.impl.SimpleObjectFormatImpl;
 import br.com.blecaute.inventory.format.updater.ItemUpdater;
 import br.com.blecaute.inventory.format.updater.ObjectUpdater;
 import br.com.blecaute.inventory.format.updater.PaginatedObjectUpdater;
@@ -64,7 +64,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
             return;
         }
 
-        SimpleItemFormat<T> simpleFormat = new SimpleItemFormat<>(slot, item, null);
+        SimpleItemFormatImpl<T> simpleFormat = new SimpleItemFormatImpl<>(slot, item, null);
         simpleFormat.format(getInventory(), builder);
 
         builder.addFormat(simpleFormat);
@@ -80,7 +80,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
             return;
         }
 
-        SimpleItemFormat<T> simpleFormat = new SimpleItemFormat<>(slot, item, callback);
+        SimpleItemFormatImpl<T> simpleFormat = new SimpleItemFormatImpl<>(slot, item, callback);
         simpleFormat.format(getInventory(), builder);
 
         builder.addFormat(simpleFormat);
@@ -106,7 +106,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
             return;
         }
 
-        SimpleObjectFormat<T> simpleFormat = new SimpleObjectFormat<>(slot, object, null);
+        SimpleObjectFormatImpl<T> simpleFormat = new SimpleObjectFormatImpl<>(slot, object, null);
         simpleFormat.format(getInventory(), builder);
 
         builder.addFormat(simpleFormat);
@@ -122,7 +122,7 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
             return;
         }
 
-        SimpleObjectFormat<T> simpleFormat = new SimpleObjectFormat<>(slot, object, null);
+        SimpleObjectFormatImpl<T> simpleFormat = new SimpleObjectFormatImpl<>(slot, object, null);
         simpleFormat.format(getInventory(), builder);
 
         builder.addFormat(simpleFormat);
@@ -141,8 +141,8 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private PaginatedItemFormat<T> getPaginatedItemUpdater(InventoryFormat<T> format) {
-        return (PaginatedItemFormat<T>) getUpdater(format, PaginatedItemFormat.class);
+    private PaginatedItemFormatImpl<T> getPaginatedItemUpdater(InventoryFormat<T> format) {
+        return (PaginatedItemFormatImpl<T>) getUpdater(format, PaginatedItemFormatImpl.class);
     }
 
     @SuppressWarnings("unchecked")

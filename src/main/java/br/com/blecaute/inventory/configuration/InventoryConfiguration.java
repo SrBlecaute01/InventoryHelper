@@ -8,7 +8,7 @@ import lombok.Getter;
  * The InventoryConfiguration is designed to configure InventoryBuilder.
  */
 @Builder @Getter
-public class InventoryConfiguration implements Cloneable {
+public class InventoryConfiguration implements Configuration, Cloneable {
 
     private String title;
     private final int lines;

@@ -17,13 +17,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 @Data
-public class SimpleItemFormat<T extends InventoryItem> implements SimpleFormat<T>, ItemUpdater<T> {
+public class SimpleItemFormatImpl<T extends InventoryItem> implements SimpleFormat<T>, ItemUpdater<T> {
 
     private int slot;
     private ItemStack itemStack;
     private ItemCallback<T> callBack;
 
-    public SimpleItemFormat(int slot, @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
+    public SimpleItemFormatImpl(int slot, @Nullable ItemStack itemStack, @Nullable ItemCallback<T> callBack) {
         this.slot = slot;
         this.itemStack = itemStack;
         this.callBack = callBack;
@@ -67,13 +67,13 @@ public class SimpleItemFormat<T extends InventoryItem> implements SimpleFormat<T
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (o instanceof SimpleObjectFormat) {
-            SimpleObjectFormat<?> that = (SimpleObjectFormat<?>) o;
+        if (o instanceof SimpleObjectFormatImpl) {
+            SimpleObjectFormatImpl<?> that = (SimpleObjectFormatImpl<?>) o;
             return getSlot() == that.getSlot();
         }
 
-        if (o instanceof SimpleItemFormat) {
-            SimpleItemFormat<?> that = (SimpleItemFormat<?>) o;
+        if (o instanceof SimpleItemFormatImpl) {
+            SimpleItemFormatImpl<?> that = (SimpleItemFormatImpl<?>) o;
             return getSlot() == that.getSlot();
         }
 
