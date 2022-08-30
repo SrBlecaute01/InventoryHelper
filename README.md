@@ -18,22 +18,22 @@
 
 ## Some features
 
-- Creation of simple or paginated inventories.
-- Possibility to create multiple patterns in the same inventory. 
-- Properties for each inventory. 
-- Integration with objects. 
-- Inventory update methods.
+-   Creation of simple or paginated inventories.
+-   Possibility to create multiple patterns in the same inventory. 
+-   Properties for each inventory. 
+-   Integration with objects. 
+-   Inventory update methods.
 
 ## Summary
 
 For a better understanding of the features this project offers, please check the
 [documentation](https://github.com/SrBlecaute01/InventoryHelper/wiki).
 
-- [Introduction](#enabling-inventoryhelper)
-- [Simple inventories](#creating-simple-inventory)
-- [Paginated inventories](#creating-paginated-inventory)
-- [Working with objects](#working-with-objects)
-- [Download](#download)
+-   [Introduction](#enabling-inventoryhelper)
+-   [Simple inventories](#creating-simple-inventory)
+-   [Paginated inventories](#creating-paginated-inventory)
+-   [Working with objects](#working-with-objects)
+-   [Download](#download)
 
 ## Enabling InventoryHelper
 
