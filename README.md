@@ -9,6 +9,13 @@
     <a target="_blank" href="https://app.codacy.com/gh/SrBlecaute01/InventoryHelper/dashboard">
         <img src="https://app.codacy.com/project/badge/Grade/7062d74db06d4935a5e69a7a539e4116" alt="Codacy"/>
     </a>
+    <br>
+    <a target="_blank" href="https://github.com/SrBlecaute01/InventoryHelper/actions/workflows/maven-build.yml">
+        <img src="https://github.com/SrBlecaute01/InventoryHelper/actions/workflows/maven-build.yml/badge.svg" alt="Build"/>
+    </a>
+    <a target="_blank" href="https://github.com/SrBlecaute01/InventoryHelper/actions/workflows/maven-publish.yml">
+        <img src="https://github.com/SrBlecaute01/InventoryHelper/actions/workflows/maven-publish.yml/badge.svg" alt="Publish"/>
+    </a>
 </p>
 
 <p align="center">
