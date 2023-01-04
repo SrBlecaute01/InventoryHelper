@@ -6,6 +6,7 @@
     <a target="_blank" href="https://github.com/SrBlecaute01/InventoryHelper/releases">
         <img src="https://img.shields.io/github/downloads/SrBlecaute01/InventoryHelper/total?color=lime_green/" alt="Downloads">
     </a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2FSrBlecaute01%2FInventoryHelper?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FSrBlecaute01%2FInventoryHelper.svg?type=shield"/></a>
     <a target="_blank" href="https://app.codacy.com/gh/SrBlecaute01/InventoryHelper/dashboard">
         <img src="https://app.codacy.com/project/badge/Grade/7062d74db06d4935a5e69a7a539e4116" alt="Codacy"/>
     </a>
@@ -221,3 +222,7 @@ dependencies {
     implementation 'com.github.SrBlecaute01:InventoryHelper:1.5.0'
 }
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSrBlecaute01%2FInventoryHelper.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FSrBlecaute01%2FInventoryHelper?ref=badge_large)
