@@ -9,6 +9,9 @@
     <a target="_blank" href="https://app.codacy.com/gh/SrBlecaute01/InventoryHelper/dashboard">
         <img src="https://app.codacy.com/project/badge/Grade/7062d74db06d4935a5e69a7a539e4116" alt="Codacy"/>
     </a>
+    <a target="_blank" href="https://app.fossa.com/projects/git%2Bgithub.com%2FSrBlecaute01%2FInventoryHelper?ref=badge_shield">
+        <img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FSrBlecaute01%2FInventoryHelper.svg?type=shield" alt="FOSSA Status"/>
+    </a>
     <br>
     <a target="_blank" href="https://github.com/SrBlecaute01/InventoryHelper/actions/workflows/maven-build.yml">
         <img src="https://github.com/SrBlecaute01/InventoryHelper/actions/workflows/maven-build.yml/badge.svg" alt="Build"/>
