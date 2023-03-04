@@ -1,21 +1,16 @@
 package br.com.blecaute.inventory.property;
 
-import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.InventoryBuilder;
-import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * The class to save properties of @{@link InventoryBuilder}
  */
-public class InventoryProperty implements Cloneable {
-
-    private Map<String, Object> map = new HashMap<>();
+public interface InventoryProperty {
 
     /**
      * Get the property
@@ -25,13 +20,7 @@ public class InventoryProperty implements Cloneable {
      * @return The property
      */
     @Nullable
-    @SuppressWarnings("unchecked cast")
-    public <T> T get(@NotNull String key) {
-        Preconditions.checkNotNull(key, "key cannot be null");
-
-        Object object = this.map.get(key);
-        return object == null ? null : (T) object;
-    }
+    <T> T get(@NotNull String key);
 
     /**
      * Get the property
@@ -39,17 +28,29 @@ public class InventoryProperty implements Cloneable {
      * @param key The key.
      * @param clazz The object class.
      *
-     * @return The object.
-     * @param <T> The object type.
+     * @return The property.
+     *
+     * @param <T> The property type.
      */
     @Nullable
-    public <T> T getOrNull(@NotNull String key, @NotNull Class<T> clazz) {
-        Preconditions.checkNotNull(key, "key cannot be null");
-        Preconditions.checkNotNull(clazz, "class cannot be null");
+    <T> T getOrNull(@NotNull String key, @NotNull Class<T> clazz);
 
-        Object object = this.map.get(key);
-        return object == null ? null : clazz.cast(object);
-    }
+    /**
+     * Get the property or throw an exception.
+     *
+     * @param key The key.
+     * @param clazz The object class.
+     * @param exception The exception supplier.
+     *
+     * @return The property.
+     *
+     * @param <T> The property type.
+     * @param <X> The exception type.
+     *
+     * @throws X If the property is not present.
+     */
+    @NotNull
+    <T, X extends Throwable> T getOrThrow(@NotNull String key, @NotNull Class<T> clazz, @NotNull Supplier<? extends X> exception) throws X;
 
     /**
      * Get the property.
@@ -57,12 +58,11 @@ public class InventoryProperty implements Cloneable {
      * @param key The key.
      * @param clazz The object class.
      *
-     * @return The optional object.
-     * @param <T> The object type.
+     * @return The optional property.
+     *
+     * @param <T> The property type.
      */
-    public <T> Optional<T> get(@NotNull String key, @NotNull Class<T> clazz) {
-        return Optional.ofNullable(getOrNull(key, clazz));
-    }
+    <T> Optional<T> get(@NotNull String key, @NotNull Class<T> clazz);
 
     /**
      * Set the property
@@ -70,36 +70,26 @@ public class InventoryProperty implements Cloneable {
      * @param key The key
      * @param value The value
      */
-    public void set(@NotNull String key, @NotNull Object value) {
-        Preconditions.checkNotNull(key, "key cannot be null");
-        Preconditions.checkNotNull(value, "value cannot be null");
-
-        this.map.put(key, value);
-    }
+    void set(@NotNull String key, @NotNull Object value);
 
     /**
      * Remove property.
      *
      * @param key The key.
      *
-     * @return The object removed.
+     * @return The property removed.
      */
     @Nullable
-    public Object removeOrNull(@NotNull String key) {
-        Preconditions.checkNotNull(key, "key cannot be null");
-        return this.map.remove(key);
-    }
+    Object removeOrNull(@NotNull String key);
 
     /**
      * Remove property.
      *
      * @param key The key.
      *
-     * @return The optional object removed.
+     * @return The optional property removed.
      */
-    public Optional<Object> remove(@NotNull String key) {
-        return Optional.ofNullable(removeOrNull(key));
-    }
+    Optional<Object> remove(@NotNull String key);
 
     /**
      * Remove property.
@@ -107,16 +97,12 @@ public class InventoryProperty implements Cloneable {
      * @param key The key.
      * @param clazz The object class.
      *
-     * @return The object removed.
-     * @param <T> The object type.
+     * @return The property removed.
+     *
+     * @param <T> The property type.
      */
     @Nullable
-    public <T> T removeOrNull(@NotNull String key, @NotNull Class<T> clazz) {
-        Preconditions.checkNotNull(key, "key cannot be null");
-        Preconditions.checkNotNull(clazz, "class cannot be null");
-
-        return clazz.cast(this.map.remove(key));
-    }
+    <T> T removeOrNull(@NotNull String key, @NotNull Class<T> clazz);
 
     /**
      * Remove property.
@@ -124,23 +110,17 @@ public class InventoryProperty implements Cloneable {
      * @param key The key.
      * @param clazz The object class.
      *
-     * @return The optional object removed.
-     * @param <T> The object type.
+     * @return The optional property removed.
+     *
+     * @param <T> The property type.
      */
-    public <T> Optional<T> remove(@NotNull String key, @NotNull Class<T> clazz) {
-        return Optional.ofNullable(removeOrNull(key, clazz));
-    }
+    <T> Optional<T> remove(@NotNull String key, @NotNull Class<T> clazz);
 
-    @Override
-    public InventoryProperty clone() {
-        try {
-            InventoryProperty property = (InventoryProperty) super.clone();
-            property.map = new HashMap<>(this.map);
+    /**
+     * Clone inventory property.
+     *
+     * @return The clone of this inventory property.
+     */
+    InventoryProperty deepClone();
 
-            return property;
-
-        } catch (CloneNotSupportedException exception) {
-            throw new InventoryBuilderException(exception.getMessage());
-        }
-    }
 }
