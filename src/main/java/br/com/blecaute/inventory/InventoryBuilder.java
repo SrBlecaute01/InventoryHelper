@@ -46,8 +46,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
     @Getter(AccessLevel.PROTECTED)
     private Inventory inventory;
 
-    private InventoryProperty properties = new InventoryProperty();
-
     @Getter
     private Set<InventoryFormat<T>> formats = ConcurrentHashMap.newKeySet();
 
@@ -319,8 +317,17 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
         Validate.notNull(key, "key cannot be null");
         Validate.notNull(object, "object cannot be null");
 
-        this.properties.set(key, object);
+        this.configuration.getProperties().set(key, object);
         return this;
+    }
+
+    /**
+     * Get the inventory properties.
+     *
+     * @return The properties.
+     */
+    public InventoryProperty getProperties() {
+        return this.configuration.getProperties();
     }
 
     /**
@@ -331,8 +338,7 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      * @return This InventoryBuilder
      */
     public InventoryBuilder<T> withProperties(@NotNull InventoryProperty properties) {
-        Validate.notNull(properties, "properties cannot be null");
-        this.properties = properties;
+        this.configuration.setProperties(properties);
         return this;
     }
 
@@ -432,7 +438,6 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
 
             clone.configuration = this.configuration.clone();
             clone.inventory = clone.createInventory();
-            clone.properties = this.properties.clone();
             clone.updater = new InventoryUpdater<>(clone);
             clone.formats = new LinkedHashSet<>(this.formats);
             clone.updateHandlers = new LinkedHashSet<>(this.updateHandlers);
