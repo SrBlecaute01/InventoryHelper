@@ -9,12 +9,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+/**
+ * Abstract implementation of {@link InventoryProperty}
+ */
 public abstract class AbstractInventoryProperty implements InventoryProperty {
 
     protected Map<String, Object> map;
 
-    public AbstractInventoryProperty(Map<String, Object> map) {
-        this.map = map;
+    public AbstractInventoryProperty(@NotNull Map<String, Object> map) {
+        this.map = Preconditions.checkNotNull(map, "map cannot be null");
     }
 
     /**
@@ -170,6 +173,11 @@ public abstract class AbstractInventoryProperty implements InventoryProperty {
         return Optional.ofNullable(removeOrNull(key, clazz));
     }
 
+    /**
+     * Clone properties.
+     *
+     * @return The properties clone.
+     */
     @Override
     public abstract InventoryProperty deepClone();
 

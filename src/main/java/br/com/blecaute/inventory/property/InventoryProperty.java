@@ -117,9 +117,9 @@ public interface InventoryProperty {
     <T> Optional<T> remove(@NotNull String key, @NotNull Class<T> clazz);
 
     /**
-     * Clone inventory property.
+     * Clone properties.
      *
-     * @return The clone of this inventory property.
+     * @return The properties clone.
      */
     InventoryProperty deepClone();
 
