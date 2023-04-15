@@ -75,12 +75,12 @@ public class ItemClickEvent<T extends InventoryItem> extends InventoryEvent<T> i
     }
 
     @Override
-    public void updateObjects(@NotNull String identifier, @NotNull Collection<T> objects) {
+    public void updateObjects(@NotNull String identifier, @NotNull Collection<? extends T> objects) {
         updater.updateObjects(identifier, objects);
     }
 
     @Override
-    public void updateObjects(@NotNull String identifier, @NotNull Collection<T> objects, @Nullable PaginatedObjectCallback<T> callback) {
+    public void updateObjects(@NotNull String identifier, @NotNull Collection<? extends T> objects, @Nullable PaginatedObjectCallback<T> callback) {
         updater.updateObjects(identifier, objects, callback);
     }
 

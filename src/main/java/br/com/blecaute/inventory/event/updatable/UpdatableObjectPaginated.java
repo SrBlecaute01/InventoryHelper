@@ -19,7 +19,7 @@ public interface UpdatableObjectPaginated<T extends InventoryItem> extends Updat
      *
      * @param objects The collection of objects to update.
      */
-    void updateObjects(@NotNull Collection<T> objects);
+    void updateObjects(@NotNull Collection<? extends T> objects);
 
     /**
      * Update all objects in paginated inventory.
@@ -27,6 +27,6 @@ public interface UpdatableObjectPaginated<T extends InventoryItem> extends Updat
      * @param objects The collection of objects to update.
      * @param callback The PaginatedObjectCallback.
      */
-    void updateObjects(@NotNull Collection<T> objects, @NotNull PaginatedObjectCallback<T> callback);
+    void updateObjects(@NotNull Collection<? extends T> objects, @NotNull PaginatedObjectCallback<T> callback);
 
 }

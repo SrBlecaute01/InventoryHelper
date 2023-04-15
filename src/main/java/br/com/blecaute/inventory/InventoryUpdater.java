@@ -129,12 +129,12 @@ public class InventoryUpdater<T extends InventoryItem> implements Updatable<T> {
     }
 
     @Override
-    public void updateObjects(@NotNull String identifier, @NotNull Collection<T> objects) {
+    public void updateObjects(@NotNull String identifier, @NotNull Collection<? extends T> objects) {
         getPaginatedObjectFormat(this.getFormat(identifier)).update(builder, getInventory(), objects);
     }
 
     @Override
-    public void updateObjects(@NotNull String identifier, @NotNull Collection<T> objects,
+    public void updateObjects(@NotNull String identifier, @NotNull Collection<? extends T> objects,
                               @Nullable PaginatedObjectCallback<T> callback) {
 
         getPaginatedObjectFormat(this.getFormat(identifier)).update(builder, getInventory(), objects, callback);
