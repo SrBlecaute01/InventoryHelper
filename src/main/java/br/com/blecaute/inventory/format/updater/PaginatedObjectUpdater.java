@@ -13,11 +13,11 @@ public interface PaginatedObjectUpdater<T extends InventoryItem> extends ObjectU
 
     void update(@NotNull InventoryBuilder<T> builder,
                 @NotNull Inventory inventory,
-                @NotNull Collection<T> objects);
+                @NotNull Collection<? extends T> objects);
 
     void update(@NotNull InventoryBuilder<T> builder,
                 @NotNull Inventory inventory,
-                @NotNull Collection<T> objects,
+                @NotNull Collection<? extends T> objects,
                 @Nullable PaginatedObjectCallback<T> callback);
 
 }

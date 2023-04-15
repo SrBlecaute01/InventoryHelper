@@ -224,7 +224,8 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This InventoryBuilder
      */
-    public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration, @NotNull Collection<ItemStack> items,
+    public InventoryBuilder<T> withItems(@NotNull PaginatedConfiguration configuration,
+                                         @NotNull Collection<ItemStack> items,
                                          @Nullable PaginatedItemCallback<T> callback) {
 
         Validate.notNull(configuration, "configuration cannot be null");
@@ -273,7 +274,8 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This InventoryBuilder
      */
-    public InventoryBuilder<T> withObjects(@NotNull PaginatedConfiguration configuration, @NotNull T[] objects,
+    public InventoryBuilder<T> withObjects(@NotNull PaginatedConfiguration configuration,
+                                           @NotNull T[] objects,
                                            @Nullable PaginatedObjectCallback<T> callback) {
 
         Validate.notNull(configuration, "configuration cannot be null");
@@ -293,7 +295,8 @@ public class InventoryBuilder<T extends InventoryItem> implements Cloneable {
      *
      * @return This InventoryBuilder
      */
-    public InventoryBuilder<T> withObjects(@NotNull PaginatedConfiguration configuration, @NotNull Collection<T> objects,
+    public InventoryBuilder<T> withObjects(@NotNull PaginatedConfiguration configuration,
+                                           @NotNull Collection<? extends T> objects,
                                            @Nullable PaginatedObjectCallback<T> callback) {
 
         Validate.notNull(configuration, "configuration cannot be null");

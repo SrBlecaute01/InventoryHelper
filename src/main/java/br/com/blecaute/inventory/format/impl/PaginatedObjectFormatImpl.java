@@ -37,7 +37,7 @@ public class PaginatedObjectFormatImpl<T extends InventoryItem> implements Pagin
     private int currentPage = 1;
 
     public PaginatedObjectFormatImpl(@NotNull PaginatedConfiguration configuration,
-                                     @NotNull Collection<T> items,
+                                     @NotNull Collection<? extends T> items,
                                      @Nullable PaginatedObjectCallback<T> callback) {
 
         validateConstructor(configuration, items, callback);
@@ -267,7 +267,7 @@ public class PaginatedObjectFormatImpl<T extends InventoryItem> implements Pagin
     }
 
     @Override
-    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @NotNull Collection<T> objects) {
+    public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory, @NotNull Collection<? extends T> objects) {
         validate(builder, inventory);
         clearInventory(inventory);
 
@@ -283,7 +283,7 @@ public class PaginatedObjectFormatImpl<T extends InventoryItem> implements Pagin
 
     @Override
     public void update(@NotNull InventoryBuilder<T> builder, @NotNull Inventory inventory,
-                       @NotNull Collection<T> objects, @Nullable PaginatedObjectCallback<T> callback) {
+                       @NotNull Collection<? extends T> objects, @Nullable PaginatedObjectCallback<T> callback) {
 
         update(builder, inventory, objects);
 

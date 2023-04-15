@@ -79,7 +79,7 @@ public interface Updatable<T extends InventoryItem> {
      * @param identifier The identifier of page.
      * @param objects The collection of Object to update.
      */
-    void updateObjects(@NotNull String identifier, @NotNull Collection<T> objects);
+    void updateObjects(@NotNull String identifier, @NotNull Collection<? extends T> objects);
 
     /**
      * Update all objects in paginated inventory with the given identifier.
@@ -88,6 +88,6 @@ public interface Updatable<T extends InventoryItem> {
      * @param objects The collection of Object to update.
      * @param callback The PaginatedObjectCallback.
      */
-    void updateObjects(@NotNull String identifier, @NotNull Collection<T> objects, @Nullable PaginatedObjectCallback<T> callback);
+    void updateObjects(@NotNull String identifier, @NotNull Collection<? extends T> objects, @Nullable PaginatedObjectCallback<T> callback);
 
 }
