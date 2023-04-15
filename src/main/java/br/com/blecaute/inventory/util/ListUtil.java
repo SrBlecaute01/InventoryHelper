@@ -15,7 +15,7 @@ public class ListUtil {
      * @return the list
      */
     public static <E> @NotNull List<E> getSublist(@NotNull List<E> list, int value, int size) {
-        if(list.isEmpty()) return list;
+        if (list.isEmpty()) return list;
 
         int first = Math.min(value * size - size, list.size() - 1);
         int end = Math.min(list.size(), first + size);

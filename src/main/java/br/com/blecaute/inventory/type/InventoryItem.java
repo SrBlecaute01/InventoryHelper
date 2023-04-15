@@ -12,6 +12,15 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface InventoryItem {
 
-    @Nullable ItemStack getItem(@NotNull Inventory inventory, @NotNull InventoryProperty property);
+    /**
+     * Get the item that will be used in the inventory
+     *
+     * @param inventory - The inventory
+     * @param property - The inventory property
+     *
+     * @return The item that will be used in the inventory.
+     */
+    @Nullable
+    ItemStack getItem(@NotNull Inventory inventory, @NotNull InventoryProperty property);
 
 }

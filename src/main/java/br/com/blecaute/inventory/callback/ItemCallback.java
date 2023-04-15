@@ -9,20 +9,4 @@ import br.com.blecaute.inventory.type.InventoryItem;
  *
  * @param <T> The type of InventoryItem.
  */
-public interface ItemCallback<T extends InventoryItem> extends InventoryCallback<T, ItemClickEvent<T>> {
-
-    ItemCallback<?> EMPTY = click -> {};
-
-    /**
-     * Get an empty ItemCallback.
-     *
-     * @param <T> The type of InventoryItem.
-     *
-     * @return The empty ItemCallback.
-     */
-    @SuppressWarnings("unchecked cast")
-    static <T extends InventoryItem> ItemCallback<T> empty() {
-        return (ItemCallback<T>) EMPTY;
-    }
-
-}
+public interface ItemCallback<T extends InventoryItem> extends InventoryCallback<T, ItemClickEvent<T>> {}

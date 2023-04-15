@@ -57,7 +57,8 @@ public abstract class InventoryEvent<T extends InventoryItem> {
      *
      * @return The @{@link Player}.
      */
-    public @NotNull Player getPlayer() {
+    @NotNull
+    public Player getPlayer() {
         return (Player) event.getWhoClicked();
     }
 
@@ -76,7 +77,8 @@ public abstract class InventoryEvent<T extends InventoryItem> {
      *
      * @return The @{@link Inventory}.
      */
-    public @NotNull Inventory getInventory() {
+    @NotNull
+    public Inventory getInventory() {
         return event.getInventory();
     }
 
@@ -85,8 +87,9 @@ public abstract class InventoryEvent<T extends InventoryItem> {
      *
      * @return The @{@link ItemStack}.
      */
-    public @NotNull ItemStack getItemStack() {
-        return event.getCurrentItem();
+    @NotNull
+    public ItemStack getItemStack() {
+        return this.event.getCurrentItem();
     }
 
     /**
@@ -94,8 +97,9 @@ public abstract class InventoryEvent<T extends InventoryItem> {
      *
      * @return The @{@link InventoryProperty}.
      */
-    public @NotNull InventoryProperty getProperties() {
-        return builder.getProperties();
+    @NotNull
+    public InventoryProperty getProperties() {
+        return this.builder.getProperties();
     }
 
     /**
@@ -107,6 +111,7 @@ public abstract class InventoryEvent<T extends InventoryItem> {
      * @return The property.
      */
     @Nullable
+    @Deprecated
     public <S> S getProperty(@NotNull String key) {
         return builder.getProperties().get(key);
     }
@@ -117,6 +122,7 @@ public abstract class InventoryEvent<T extends InventoryItem> {
      * @param key The key of property.
      * @param value The value of property.
      */
+    @Deprecated
     public void setProperty(@NotNull String key, @NotNull Object value) {
         builder.getProperties().set(key, value);
     }
