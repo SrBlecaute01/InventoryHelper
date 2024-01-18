@@ -4,13 +4,9 @@ import br.com.blecaute.inventory.InventoryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-<<<<<<< HEAD
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
-=======
-import java.util.Optional;
->>>>>>> 4247e1ea5c243dc7d205debc171f9413231e0caa
 import java.util.function.Supplier;
 
 /**
@@ -146,12 +142,4 @@ public interface InventoryProperty {
      * @return The inventory property clone.
      */
     InventoryProperty deepClone();
-=======
-     * Clone properties.
-     *
-     * @return The properties clone.
-     */
-    InventoryProperty deepClone();
-
->>>>>>> 4247e1ea5c243dc7d205debc171f9413231e0caa
 }
