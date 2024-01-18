@@ -1,20 +1,18 @@
 package br.com.blecaute.inventory.property;
 
-import br.com.blecaute.inventory.exception.InventoryBuilderException;
 import br.com.blecaute.inventory.InventoryBuilder;
-import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * The class to save properties of @{@link InventoryBuilder}
  */
-public class InventoryProperty implements Cloneable {
-
-    private Map<String, Object> map = new HashMap<>();
+public interface InventoryProperty {
 
     /**
      * Get the property
@@ -23,13 +21,50 @@ public class InventoryProperty implements Cloneable {
      *
      * @return The property
      */
-    @Nullable @SuppressWarnings("unchecked cast")
-    public <T> T get(@NotNull String key) {
-        Preconditions.checkNotNull(key, "key cannot be null");
+    @Nullable
+    <T> T get(@NotNull String key);
 
-        Object object = this.map.get(key);
-        return object == null ? null : (T) object;
-    }
+    /**
+     * Get the property
+     *
+     * @param key The key.
+     * @param clazz The object class.
+     *
+     * @return The property.
+     *
+     * @param <T> The property type.
+     */
+    @Nullable
+    <T> T getOrNull(@NotNull String key, @NotNull Class<T> clazz);
+
+    /**
+     * Get the property or throw an exception.
+     *
+     * @param key The key.
+     * @param clazz The object class.
+     * @param exception The exception supplier.
+     *
+     * @return The property.
+     *
+     * @param <T> The property type.
+     * @param <X> The exception type.
+     *
+     * @throws X If the property is not present.
+     */
+    @NotNull
+    <T, X extends Throwable> T getOrThrow(@NotNull String key, @NotNull Class<T> clazz, @NotNull Supplier<? extends X> exception) throws X;
+
+    /**
+     * Get the property.
+     *
+     * @param key The key.
+     * @param clazz The object class.
+     *
+     * @return The optional property.
+     *
+     * @param <T> The property type.
+     */
+    <T> Optional<T> get(@NotNull String key, @NotNull Class<T> clazz);
 
     /**
      * Set the property
@@ -37,23 +72,70 @@ public class InventoryProperty implements Cloneable {
      * @param key The key
      * @param value The value
      */
-    public void set(@NotNull String key, @NotNull Object value) {
-        Preconditions.checkNotNull(key, "key cannot be null");
-        Preconditions.checkNotNull(value, "value cannot be null");
+    void set(@NotNull String key, @NotNull Object value);
 
-        this.map.put(key, value);
-    }
+    /**
+     * Remove property.
+     *
+     * @param key The key.
+     *
+     * @return The property removed.
+     */
+    @Nullable
+    Object removeOrNull(@NotNull String key);
 
-    @Override
-    public InventoryProperty clone() {
-        try {
-            InventoryProperty property = (InventoryProperty) super.clone();
-            property.map = new HashMap<>(this.map);
+    /**
+     * Remove property.
+     *
+     * @param key The key.
+     *
+     * @return The optional property removed.
+     */
+    Optional<Object> remove(@NotNull String key);
 
-            return property;
+    /**
+     * Remove property.
+     *
+     * @param key The key.
+     * @param clazz The object class.
+     *
+     * @return The property removed.
+     *
+     * @param <T> The property type.
+     */
+    @Nullable
+    <T> T removeOrNull(@NotNull String key, @NotNull Class<T> clazz);
 
-        } catch (CloneNotSupportedException exception) {
-            throw new InventoryBuilderException(exception.getMessage());
-        }
-    }
+    /**
+     * Remove property.
+     *
+     * @param key The key.
+     * @param clazz The object class.
+     *
+     * @return The optional property removed.
+     *
+     * @param <T> The property type.
+     */
+    <T> Optional<T> remove(@NotNull String key, @NotNull Class<T> clazz);
+
+    /**
+     * Get inventory property keys.
+     *
+     * @return The inventory property keys.
+     */
+    Set<String> getKeys();
+
+    /**
+     * Get inventory property values.
+     *
+     * @return The inventory property values.
+     */
+    Collection<Object> getValues();
+
+    /**
+     * Clone inventory property.
+     *
+     * @return The inventory property clone.
+     */
+    InventoryProperty deepClone();
 }

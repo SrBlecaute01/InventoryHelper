@@ -11,9 +11,9 @@ import org.bukkit.inventory.ItemStack;
 public interface InventorySlot extends InventoryItem {
 
     /**
-     * The slot
+     * Get the slot that will be used in the inventory.
      *
-     * @return The index of slot;
+     * @return The slot.
      */
     int getSlot();
 
