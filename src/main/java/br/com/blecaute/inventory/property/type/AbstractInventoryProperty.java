@@ -5,8 +5,10 @@ import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -20,13 +22,6 @@ public abstract class AbstractInventoryProperty implements InventoryProperty {
         this.map = Preconditions.checkNotNull(map, "map cannot be null");
     }
 
-    /**
-     * Get the property
-     *
-     * @param key The key
-     *
-     * @return The property
-     */
     @Override
     @Nullable
     @SuppressWarnings("unchecked cast")
@@ -37,16 +32,6 @@ public abstract class AbstractInventoryProperty implements InventoryProperty {
         return object == null ? null : (T) object;
     }
 
-    /**
-     * Get the property
-     *
-     * @param key The key.
-     * @param clazz The object class.
-     *
-     * @return The property.
-     *
-     * @param <T> The property type.
-     */
     @Override
     @Nullable
     public <T> T getOrNull(@NotNull String key, @NotNull Class<T> clazz) {
@@ -57,20 +42,6 @@ public abstract class AbstractInventoryProperty implements InventoryProperty {
         return object == null ? null : clazz.cast(object);
     }
 
-    /**
-     * Get the property or throw an exception.
-     *
-     * @param key The key.
-     * @param clazz The object class.
-     * @param exception The exception supplier.
-     *
-     * @return The property.
-     *
-     * @param <T> The property type.
-     * @param <X> The exception type.
-     *
-     * @throws X If the property is not present.
-     */
     @Override
     @NotNull
     public <T, X extends Throwable> T getOrThrow(@NotNull String key, @NotNull Class<T> clazz, @NotNull Supplier<? extends X> exception) throws X {
@@ -84,27 +55,11 @@ public abstract class AbstractInventoryProperty implements InventoryProperty {
         return object;
     }
 
-    /**
-     * Get the property.
-     *
-     * @param key The key.
-     * @param clazz The object class.
-     *
-     * @return The optional property.
-     *
-     * @param <T> The property type.
-     */
     @Override
     public <T> Optional<T> get(@NotNull String key, @NotNull Class<T> clazz) {
         return Optional.ofNullable(getOrNull(key, clazz));
     }
 
-    /**
-     * Set the property
-     *
-     * @param key The key
-     * @param value The value
-     */
     @Override
     public void set(@NotNull String key, @NotNull Object value) {
         Preconditions.checkNotNull(key, "key cannot be null");
@@ -113,13 +68,6 @@ public abstract class AbstractInventoryProperty implements InventoryProperty {
         this.map.put(key, value);
     }
 
-    /**
-     * Remove property.
-     *
-     * @param key The key.
-     *
-     * @return The property removed.
-     */
     @Override
     @Nullable
     public Object removeOrNull(@NotNull String key) {
@@ -127,28 +75,11 @@ public abstract class AbstractInventoryProperty implements InventoryProperty {
         return this.map.remove(key);
     }
 
-    /**
-     * Remove property.
-     *
-     * @param key The key.
-     *
-     * @return The optional property removed.
-     */
     @Override
     public Optional<Object> remove(@NotNull String key) {
         return Optional.ofNullable(removeOrNull(key));
     }
 
-    /**
-     * Remove property.
-     *
-     * @param key The key.
-     * @param clazz The object class.
-     *
-     * @return The property removed.
-     *
-     * @param <T> The property type.
-     */
     @Override
     @Nullable
     public <T> T removeOrNull(@NotNull String key, @NotNull Class<T> clazz) {
@@ -158,26 +89,21 @@ public abstract class AbstractInventoryProperty implements InventoryProperty {
         return clazz.cast(this.map.remove(key));
     }
 
-    /**
-     * Remove property.
-     *
-     * @param key The key.
-     * @param clazz The object class.
-     *
-     * @return The optional property removed.
-     *
-     * @param <T> The property type.
-     */
     @Override
     public <T> Optional<T> remove(@NotNull String key, @NotNull Class<T> clazz) {
         return Optional.ofNullable(removeOrNull(key, clazz));
     }
 
-    /**
-     * Clone properties.
-     *
-     * @return The properties clone.
-     */
+    @Override
+    public Set<String> getKeys() {
+        return this.map.keySet();
+    }
+
+    @Override
+    public Collection<Object> getValues() {
+        return this.map.values();
+    }
+
     @Override
     public abstract InventoryProperty deepClone();
 
