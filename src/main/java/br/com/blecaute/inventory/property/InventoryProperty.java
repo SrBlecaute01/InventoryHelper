@@ -113,16 +113,12 @@ public interface InventoryProperty {
      * @param clazz The object class.
      *
      * @return The optional property removed.
-<<<<<<< HEAD
-=======
      *
->>>>>>> 4247e1ea5c243dc7d205debc171f9413231e0caa
      * @param <T> The property type.
      */
     <T> Optional<T> remove(@NotNull String key, @NotNull Class<T> clazz);
 
     /**
-<<<<<<< HEAD
      * Get inventory property keys.
      *
      * @return The inventory property keys.
