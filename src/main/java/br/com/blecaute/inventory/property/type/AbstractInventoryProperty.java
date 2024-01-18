@@ -22,6 +22,7 @@ public abstract class AbstractInventoryProperty implements InventoryProperty {
         this.map = Preconditions.checkNotNull(map, "map cannot be null");
     }
 
+
     @Override
     @Nullable
     @SuppressWarnings("unchecked cast")

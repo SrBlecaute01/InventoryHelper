@@ -4,9 +4,13 @@ import br.com.blecaute.inventory.InventoryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+<<<<<<< HEAD
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+=======
+import java.util.Optional;
+>>>>>>> 4247e1ea5c243dc7d205debc171f9413231e0caa
 import java.util.function.Supplier;
 
 /**
@@ -113,11 +117,16 @@ public interface InventoryProperty {
      * @param clazz The object class.
      *
      * @return The optional property removed.
+<<<<<<< HEAD
+=======
+     *
+>>>>>>> 4247e1ea5c243dc7d205debc171f9413231e0caa
      * @param <T> The property type.
      */
     <T> Optional<T> remove(@NotNull String key, @NotNull Class<T> clazz);
 
     /**
+<<<<<<< HEAD
      * Get inventory property keys.
      *
      * @return The inventory property keys.
@@ -137,4 +146,12 @@ public interface InventoryProperty {
      * @return The inventory property clone.
      */
     InventoryProperty deepClone();
+=======
+     * Clone properties.
+     *
+     * @return The properties clone.
+     */
+    InventoryProperty deepClone();
+
+>>>>>>> 4247e1ea5c243dc7d205debc171f9413231e0caa
 }
